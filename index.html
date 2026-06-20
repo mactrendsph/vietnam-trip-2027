@@ -1124,7 +1124,7 @@ function loadState() {
       tripDate: s.tripDate || null,
       polls: s.polls || { p1:{}, p2:{}, p3:{}, p3b:{}, p4_danang:{}, p4_hoian:{} },
       attendance: s.attendance || [],
-      announcements: getDefaultAnnouncements(),
+      announcements: s.announcements || getDefaultAnnouncements(),
       flights: s.flights || getDefaultFlights(),
       bookings: s.bookings || [],
       itinerary: s.itinerary || getDefaultItinerary(),
@@ -2066,7 +2066,6 @@ function renderDashboard() {
     const p1top = p1total > 0 ? Object.entries(state.polls.p1||{}).sort((a,b)=>b[1]-a[1]).slice(0,1).map(([k,v])=>`${POLL1_OPTIONS.find(o=>o.id===k)?.label||k} (${v})`).join('') : 'No votes yet';
     const p2total = totalVotes(state.polls.p2||{});
     const p3total = totalVotes(state.polls.p3||{});
-    const p3yes = state.polls.p3?.yes || 0;
     const p4dTotal = totalVotes(state.polls.p4_danang||{});
     const p4hTotal = totalVotes(state.polls.p4_hoian||{});
     const p4top = (p4dTotal + p4hTotal) > 0
@@ -2083,7 +2082,7 @@ function renderDashboard() {
       </div>
       <div style="padding:12px;background:var(--cream);border-radius:8px;">
         <div style="font-weight:700;font-size:0.85rem;color:var(--darkteal);margin-bottom:6px;">👨‍👩‍👧 Poll 3: Companions</div>
-        <div class="text-muted">${p3total} votes · With companion: ${p3yes}</div>
+        <div class="text-muted">${p3total} votes · With companion: ${state.polls.p3?.yes||0}</div>
       </div>
       <div style="padding:12px;background:var(--cream);border-radius:8px;">
         <div style="font-weight:700;font-size:0.85rem;color:var(--darkteal);margin-bottom:6px;">🎯 Poll 4: Activities</div>
@@ -2165,10 +2164,10 @@ function getSharedState() {
 }
 
 function mergeRemoteState(remote) {
-  // Keep device-local fields and HTML-managed content; use remote for shared data
+  // Keep device-local fields and HTML-managed announcements
   const localVotes         = state.myVotes       || {};
   const localPacking       = state.packingChecked || {};
-  const localAnnouncements = state.announcements  || [];
+  const localAnnouncements = getDefaultAnnouncements();
   state = { ...remote, myVotes: localVotes, packingChecked: localPacking, announcements: localAnnouncements };
   localStorage.setItem('vn-trip-planner-v2', JSON.stringify(state));
 }
@@ -2261,4 +2260,59 @@ function disconnectSheets() {
 }
 
 function copyAppsScript() {
-  na
+  navigator.clipboard.writeText(APPS_SCRIPT_CODE)
+    .then(() => toast('Apps Script code copied! ✅'))
+    .catch(() => toast('Select and copy the code manually.'));
+}
+
+function renderAll() {
+  updateCountdown();
+  renderDashboard();
+  renderPolls();
+  renderAttendance();
+  renderItinerary();
+  renderActivities();
+  renderFlights();
+  renderAnnouncements();
+  renderBookings();
+  renderBudget();
+  renderEssentials();
+}
+
+// ===================== INIT =====================
+async function init() {
+  // Pre-fill setup modal fields
+  if (SCRIPT_URL) document.getElementById('scriptUrlInput').value = SCRIPT_URL;
+  document.getElementById('appsScriptCode').textContent = APPS_SCRIPT_CODE;
+
+  updateCountdown();
+  renderDashboard();
+  renderPolls();
+  renderAttendance();
+  renderItinerary();
+  renderActivities();
+  renderFlights();
+  renderAnnouncements();
+  renderBookings();
+  renderBudget();
+  renderEssentials();
+
+  if (state.tripDate) {
+    document.getElementById('tripDateInput').value = state.tripDate;
+  }
+
+  // Load from Google Sheets (replaces localStorage with live data)
+  if (SCRIPT_URL) {
+    await pullFromSheets();
+  } else {
+    showSyncStatus('none');
+  }
+
+  // Auto-refresh every 60 seconds when connected
+  setInterval(() => { if (SCRIPT_URL) pullFromSheets(); }, 60000);
+}
+
+init();
+</script>
+</body>
+</html>
