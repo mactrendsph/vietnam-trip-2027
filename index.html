@@ -2086,7 +2086,8 @@ function toast(msg) {
 }
 
 // ===================== GOOGLE SHEETS SYNC =====================
-let SCRIPT_URL = localStorage.getItem('vn-gs-url') || 'https://script.google.com/macros/s/AKfycbwQh8od3UohjTdn7tytniw2R2ctmb11DbzGmvVXKaUf6qgMxVigrsK8j0-7Tqf3pxgavQ/exec';
+let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzfXrp_1JHijgw9MtmRLx3QfLkWA_9QsbJve2y4Si7LWbIk74fOuLiPjtXFyXzJUBk4LQ/exec';
+localStorage.setItem('vn-gs-url', SCRIPT_URL);
 let syncTimer = null;
 let isSyncing = false;
 
