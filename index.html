@@ -1940,7 +1940,8 @@ function renderSavingsTracker() {
     </div>`;
   }).join('');
 
-  updateSavingsSummary(grandTotal, grandTarget, going.length);
+  const totalPax = going.reduce((s, a) => s + 1 + (a.companions || 0), 0);
+  updateSavingsSummary(grandTotal, grandTarget, going.length, totalPax);
 }
 
 function formatMonth(m) {
@@ -1950,13 +1951,13 @@ function formatMonth(m) {
   return `${names[parseInt(mo,10)-1]} ${y}`;
 }
 
-function updateSavingsSummary(grandTotal, grandTarget, count) {
+function updateSavingsSummary(grandTotal, grandTarget, count, totalPax) {
   const bar = document.getElementById('savingsSummaryBar');
   if (!bar) return;
   const pct = grandTarget > 0 ? Math.min(100, Math.round((grandTotal/grandTarget)*100)) : 0;
   bar.innerHTML = `
     <div style="background:var(--cream);border-radius:8px;padding:10px 14px;border-left:4px solid var(--gold);">
-      <div style="font-size:0.78rem;font-weight:700;color:var(--muted);margin-bottom:6px;">📊 GROUP SAVINGS OVERVIEW (${count} members · ${going.reduce((s,a)=>s+1+(a.companions||0),0)} total pax)</div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--muted);margin-bottom:6px;">📊 GROUP SAVINGS OVERVIEW (${count} members · ${totalPax} total pax)</div>
       <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:0.85rem;margin-bottom:8px;">
         <span>💰 Total Collected: <strong style="color:var(--darkteal);">₱${grandTotal.toLocaleString()}</strong></span>
         <span>🎯 Group Target: <strong>₱${grandTarget.toLocaleString()}</strong></span>
