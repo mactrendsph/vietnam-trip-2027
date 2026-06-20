@@ -1119,12 +1119,12 @@ let state = loadState();
 
 function loadState() {
   try {
-    const s = JSON.parse(localStorage.getItem('vn-trip-planner-v3') || '{}');
+    const s = JSON.parse(localStorage.getItem('vn-trip-planner-v2') || '{}');
     return {
       tripDate: s.tripDate || null,
       polls: s.polls || { p1:{}, p2:{}, p3:{}, p3b:{}, p4_danang:{}, p4_hoian:{} },
       attendance: s.attendance || [],
-      announcements: s.announcements || getDefaultAnnouncements(),
+      announcements: getDefaultAnnouncements(),
       flights: s.flights || getDefaultFlights(),
       bookings: s.bookings || [],
       itinerary: s.itinerary || getDefaultItinerary(),
@@ -1139,7 +1139,7 @@ function loadState() {
 }
 
 function saveState() {
-  localStorage.setItem('vn-trip-planner-v3', JSON.stringify(state));
+  localStorage.setItem('vn-trip-planner-v2', JSON.stringify(state));
 }
 
 function getDefaultState() {
@@ -2170,7 +2170,7 @@ function mergeRemoteState(remote) {
   const localPacking       = state.packingChecked || {};
   const localAnnouncements = state.announcements  || [];
   state = { ...remote, myVotes: localVotes, packingChecked: localPacking, announcements: localAnnouncements };
-  localStorage.setItem('vn-trip-planner-v3', JSON.stringify(state));
+  localStorage.setItem('vn-trip-planner-v2', JSON.stringify(state));
 }
 
 async function pullFromSheets() {
@@ -2221,7 +2221,7 @@ async function pushToSheets() {
 // Override saveState to also schedule a push
 const _origSaveState = saveState;
 function saveState() {
-  localStorage.setItem('vn-trip-planner-v3', JSON.stringify(state));
+  localStorage.setItem('vn-trip-planner-v2', JSON.stringify(state));
   if (SCRIPT_URL) {
     showSyncStatus('saving', '🔄 Queued…');
     clearTimeout(syncTimer);
