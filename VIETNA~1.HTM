@@ -1,0 +1,2300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🇻🇳 Hội An & Đà Nẵng Trip Planner</title>
+<style>
+  :root {
+    --gold: #c9a84c;
+    --darkgold: #a07830;
+    --teal: #1a6b6b;
+    --darkteal: #0f4444;
+    --cream: #fdf6e3;
+    --red: #c0392b;
+    --green: #27ae60;
+    --orange: #e67e22;
+    --lightgray: #f4f4f4;
+    --border: #ddd;
+    --text: #2c2c2c;
+    --muted: #777;
+    --white: #fff;
+    --shadow: 0 2px 12px rgba(0,0,0,0.1);
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0ede6; color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, var(--darkteal) 0%, var(--teal) 50%, #2a8a5a 100%);
+    color: white; padding: 0; position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+  }
+  .header-top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 24px; flex-wrap: wrap; gap: 8px;
+  }
+  .header-title { display: flex; align-items: center; gap: 12px; }
+  .header-title h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: 0.5px; }
+  .header-title .subtitle { font-size: 0.75rem; opacity: 0.8; }
+  .countdown-bar {
+    background: rgba(0,0,0,0.2); padding: 6px 24px;
+    display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+  }
+  .countdown-label { font-size: 0.75rem; opacity: 0.8; }
+  .countdown-units { display: flex; gap: 12px; }
+  .countdown-unit { text-align: center; }
+  .countdown-unit .num { font-size: 1.3rem; font-weight: 700; color: var(--gold); line-height: 1; }
+  .countdown-unit .lbl { font-size: 0.6rem; opacity: 0.7; text-transform: uppercase; }
+  .admin-badge {
+    background: var(--gold); color: #111; padding: 4px 10px;
+    border-radius: 20px; font-size: 0.7rem; font-weight: 700; cursor: pointer;
+  }
+  .sync-dot {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.72rem; padding: 3px 9px; border-radius: 20px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .sync-dot.ok      { background: rgba(39,174,96,0.25); color: #27ae60; }
+  .sync-dot.saving  { background: rgba(230,126,34,0.25); color: #e67e22; }
+  .sync-dot.loading { background: rgba(201,168,76,0.2); color: var(--gold); }
+  .sync-dot.error   { background: rgba(192,57,43,0.25); color: var(--red); }
+  .sync-dot.none    { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+  .spin { display: inline-block; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .code-block {
+    background: #1e1e1e; color: #d4d4d4; border-radius: 8px;
+    padding: 14px; font-family: monospace; font-size: 0.78rem;
+    line-height: 1.6; overflow-x: auto; white-space: pre; max-height: 320px; overflow-y: auto;
+  }
+
+  /* NAV TABS */
+  nav {
+    background: var(--darkteal); display: flex; overflow-x: auto;
+    scrollbar-width: none; border-bottom: 2px solid var(--gold);
+  }
+  nav::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    background: none; border: none; color: rgba(255,255,255,0.7);
+    padding: 10px 16px; cursor: pointer; white-space: nowrap;
+    font-size: 0.82rem; font-weight: 500; transition: all 0.2s;
+    border-bottom: 3px solid transparent; margin-bottom: -2px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .tab-btn:hover { color: white; background: rgba(255,255,255,0.08); }
+  .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); background: rgba(201,168,76,0.1); }
+
+  /* MAIN */
+  main { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: white; border-radius: var(--radius); padding: 20px;
+    box-shadow: var(--shadow); margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 1rem; font-weight: 700; color: var(--darkteal);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    border-bottom: 2px solid var(--cream); padding-bottom: 10px;
+  }
+  .card-title .icon { font-size: 1.2rem; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 700px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 8px; border: none;
+    cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--teal); color: white; }
+  .btn-primary:hover { background: var(--darkteal); }
+  .btn-gold { background: var(--gold); color: #111; }
+  .btn-gold:hover { background: var(--darkgold); color: white; }
+  .btn-red { background: var(--red); color: white; }
+  .btn-red:hover { background: #a93226; }
+  .btn-green { background: var(--green); color: white; }
+  .btn-green:hover { background: #1e8449; }
+  .btn-sm { padding: 5px 10px; font-size: 0.78rem; }
+  .btn-outline { background: none; border: 2px solid var(--teal); color: var(--teal); }
+  .btn-outline:hover { background: var(--teal); color: white; }
+
+  /* FORMS */
+  .form-group { margin-bottom: 12px; }
+  .form-group label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; padding: 8px 12px; border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: 0.88rem; font-family: inherit;
+    transition: border 0.2s; background: #fafafa;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--teal); background: white;
+  }
+  .form-group textarea { resize: vertical; min-height: 70px; }
+
+  /* POLLS */
+  .poll-option {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px;
+    margin-bottom: 8px; cursor: pointer; transition: all 0.2s; background: #fafafa;
+  }
+  .poll-option:hover { border-color: var(--teal); background: #f0f9f9; }
+  .poll-option.voted { border-color: var(--teal); background: #e8f5f5; }
+  .poll-option-left { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+  .poll-bar-wrap { flex: 1; margin: 0 12px; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+  .poll-bar { height: 100%; background: linear-gradient(90deg, var(--teal), var(--gold)); border-radius: 4px; transition: width 0.4s; }
+  .poll-pct { font-size: 0.78rem; font-weight: 700; color: var(--teal); min-width: 36px; text-align: right; }
+  .poll-count { font-size: 0.75rem; color: var(--muted); margin-top: 6px; }
+  .poll-voted-badge { font-size: 0.7rem; background: var(--teal); color: white; padding: 2px 7px; border-radius: 20px; }
+
+  /* ACTIVITIES */
+  .activity-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border: 2px solid var(--border); border-radius: 20px;
+    margin: 4px; cursor: pointer; font-size: 0.82rem; transition: all 0.2s;
+    background: white;
+  }
+  .activity-tag:hover { border-color: var(--gold); }
+  .activity-tag.selected { border-color: var(--gold); background: #fef9ec; color: var(--darkgold); font-weight: 600; }
+  .activity-tag .check { display: none; }
+  .activity-tag.selected .check { display: inline; }
+
+  /* ATTENDANCE TABLE */
+  .attendance-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .attendance-table th {
+    background: var(--darkteal); color: white; padding: 10px 12px;
+    text-align: left; font-size: 0.8rem; font-weight: 600;
+  }
+  .attendance-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  .attendance-table tr:hover td { background: #f9f9f9; }
+  .status-pill {
+    padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;
+  }
+  .status-confirmed { background: #d5f5e3; color: #1e8449; }
+  .status-maybe { background: #fef9c3; color: #b7770d; }
+  .status-no { background: #fde8e6; color: #c0392b; }
+  .status-pending { background: #eee; color: #666; }
+
+  /* ANNOUNCEMENTS */
+  .announcement {
+    border-left: 4px solid var(--gold); padding: 12px 16px;
+    background: #fffdf5; border-radius: 0 8px 8px 0; margin-bottom: 12px;
+  }
+  .announcement.urgent { border-color: var(--red); background: #fff5f5; }
+  .announcement.info { border-color: var(--teal); background: #f0f9f9; }
+  .announcement-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 4px; }
+  .announcement-meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; }
+  .announcement-body { font-size: 0.87rem; line-height: 1.5; }
+
+  /* ITINERARY */
+  .day-block { border: 1.5px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+  .day-header {
+    background: linear-gradient(135deg, var(--darkteal), var(--teal));
+    color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer;
+  }
+  .day-header h3 { font-size: 0.92rem; }
+  .day-body { padding: 14px 16px; background: white; }
+  .time-slot { display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start; }
+  .time-label { font-size: 0.75rem; color: var(--teal); font-weight: 700; min-width: 60px; padding-top: 2px; }
+  .time-content { font-size: 0.87rem; line-height: 1.4; flex: 1; }
+  .time-content strong { color: var(--darkteal); }
+
+  /* FLIGHTS */
+  .flight-card {
+    border: 1.5px solid var(--border); border-radius: 10px; padding: 16px;
+    margin-bottom: 12px; background: white; transition: box-shadow 0.2s;
+  }
+  .flight-card:hover { box-shadow: var(--shadow); }
+  .flight-route { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .flight-city { font-size: 1.1rem; font-weight: 700; color: var(--darkteal); }
+  .flight-arrow { color: var(--gold); font-size: 1.2rem; flex: 1; text-align: center; }
+  .flight-info { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.82rem; color: var(--muted); }
+  .flight-info span { display: flex; align-items: center; gap: 4px; }
+  .airline-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 0.75rem; font-weight: 700; background: var(--cream);
+    color: var(--darkteal); border: 1px solid var(--gold);
+  }
+
+  /* BOOKING FORM */
+  .secure-note {
+    background: #f0f9f0; border: 1.5px solid var(--green);
+    border-radius: 8px; padding: 10px 14px; margin-bottom: 16px;
+    font-size: 0.83rem; color: #1a6b2a; display: flex; align-items: center; gap: 8px;
+  }
+  .booking-entry {
+    border: 1.5px solid var(--border); border-radius: 10px; padding: 14px;
+    margin-bottom: 10px; background: #fafafa;
+  }
+  .booking-entry-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .booking-name { font-weight: 700; font-size: 0.9rem; }
+  .booking-details { font-size: 0.8rem; color: var(--muted); display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+
+  /* BUDGET */
+  .budget-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .budget-item:last-child { border-bottom: none; }
+  .budget-label { color: var(--text); }
+  .budget-amount { font-weight: 700; color: var(--darkteal); }
+  .budget-total { background: var(--darkteal); color: white; padding: 12px 16px; border-radius: 8px; display: flex; justify-content: space-between; font-weight: 700; font-size: 1rem; margin-top: 10px; }
+
+  /* INFO BOXES */
+  .info-box { background: var(--cream); border-radius: 8px; padding: 14px; margin-bottom: 12px; border-left: 4px solid var(--gold); }
+  .info-box h4 { font-size: 0.88rem; font-weight: 700; color: var(--darkteal); margin-bottom: 8px; }
+  .info-box ul { list-style: none; padding: 0; }
+  .info-box ul li { font-size: 0.83rem; padding: 3px 0; display: flex; gap: 8px; }
+  .info-box ul li::before { content: "•"; color: var(--gold); font-weight: 700; }
+
+  /* WEATHER */
+  .weather-month { display: inline-block; padding: 8px 14px; border-radius: 8px; margin: 4px; font-size: 0.82rem; text-align: center; }
+  .weather-good { background: #d5f5e3; color: #1e8449; border: 1.5px solid #27ae60; }
+  .weather-ok { background: #fef9c3; color: #b7770d; border: 1.5px solid #f0c040; }
+  .weather-bad { background: #fde8e6; color: #c0392b; border: 1.5px solid #e74c3c; }
+
+  /* PACKING */
+  .pack-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.87rem; }
+  .pack-item input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--teal); cursor: pointer; }
+  .pack-item.checked { opacity: 0.5; text-decoration: line-through; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 1000; align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white; border-radius: var(--radius); padding: 24px;
+    max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+  }
+  .modal-title { font-size: 1.1rem; font-weight: 700; color: var(--darkteal); margin-bottom: 16px; }
+  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+
+  /* TOAST */
+  #toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--darkteal); color: white; padding: 10px 20px;
+    border-radius: 8px; font-size: 0.88rem; z-index: 2000;
+    opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  }
+  #toast.show { opacity: 1; }
+
+  /* MISC */
+  .flag { font-size: 1.5rem; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+  .badge-teal { background: #e0f2f2; color: var(--teal); }
+  .badge-gold { background: #fef3cd; color: var(--darkgold); }
+  .empty-state { text-align: center; padding: 32px; color: var(--muted); font-size: 0.9rem; }
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: 8px; }
+  .divider { border: none; border-top: 1.5px solid var(--border); margin: 16px 0; }
+  .text-muted { color: var(--muted); font-size: 0.82rem; }
+  .text-gold { color: var(--gold); }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .mt8 { margin-top: 8px; }
+  .mt16 { margin-top: 16px; }
+  input[type="password"] { letter-spacing: 3px; }
+
+  /* DASHBOARD STATS */
+  .stat-card {
+    background: white; border-radius: var(--radius); padding: 16px 20px;
+    box-shadow: var(--shadow); text-align: center; border-top: 4px solid var(--gold);
+  }
+  .stat-num { font-size: 2rem; font-weight: 800; color: var(--darkteal); line-height: 1; }
+  .stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #f1f1f1; }
+  ::-webkit-scrollbar-thumb { background: var(--teal); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="header-title">
+      <span class="flag">🇻🇳</span>
+      <div>
+        <h1>Hội An & Đà Nẵng Trip Planner</h1>
+        <div class="subtitle">Group Travel Organizer · 2027</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <span id="syncStatus" class="sync-dot none" onclick="manualRefresh()" title="Click to refresh data from Google Sheets">⚪ Not connected</span>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3);" onclick="openModal('sheetsSetupModal')">⚙️ Sheets</button>
+      <div id="adminBadge" class="admin-badge" onclick="toggleAdminLogin()">👤 Member</div>
+    </div>
+  </div>
+  <div class="countdown-bar">
+    <span class="countdown-label">⏳ Countdown to Trip:</span>
+    <div class="countdown-units" id="countdown">
+      <div class="countdown-unit"><div class="num" id="cd-days">--</div><div class="lbl">Days</div></div>
+      <div class="countdown-unit"><div class="num" id="cd-hours">--</div><div class="lbl">Hrs</div></div>
+      <div class="countdown-unit"><div class="num" id="cd-mins">--</div><div class="lbl">Min</div></div>
+    </div>
+    <span id="tripDateDisplay" class="text-muted" style="font-size:0.75rem;margin-left:8px;"></span>
+    <span style="margin-left:auto;">
+      <button class="btn btn-gold btn-sm" onclick="openModal('tripDateModal')">📅 Set Trip Date</button>
+    </span>
+  </div>
+</header>
+
+<nav id="mainNav">
+  <button class="tab-btn active" onclick="showTab('dashboard')" data-tab="dashboard">🏠 Dashboard</button>
+  <button class="tab-btn" onclick="showTab('polls')" data-tab="polls">🗳️ Polls</button>
+  <button class="tab-btn" onclick="showTab('attendance')" data-tab="attendance">👥 Who's Coming</button>
+  <button class="tab-btn" onclick="showTab('itinerary')" data-tab="itinerary">📅 Itinerary</button>
+  <button class="tab-btn" onclick="showTab('activities')" data-tab="activities">🎯 Activities</button>
+  <button class="tab-btn" onclick="showTab('flights')" data-tab="flights">✈️ Flights</button>
+  <button class="tab-btn" onclick="showTab('announcements')" data-tab="announcements">📢 Announcements</button>
+  <button class="tab-btn" onclick="showTab('bookings')" data-tab="bookings">🔐 Bookings</button>
+  <button class="tab-btn" onclick="showTab('budget')" data-tab="budget">💰 Budget</button>
+  <button class="tab-btn" onclick="showTab('essentials')" data-tab="essentials">📋 Essentials</button>
+</nav>
+
+<main>
+
+<!-- ===================== DASHBOARD ===================== -->
+<div id="tab-dashboard" class="tab-content active">
+  <div class="grid-3 mt8" style="margin-bottom:16px;">
+    <div class="stat-card">
+      <div class="stat-num" id="stat-confirmed">0</div>
+      <div class="stat-label">✅ Confirmed Going</div>
+    </div>
+    <div class="stat-card" style="border-top-color:var(--orange)">
+      <div class="stat-num" style="color:var(--orange)" id="stat-maybe">0</div>
+      <div class="stat-label">🤔 Maybe</div>
+    </div>
+    <div class="stat-card" style="border-top-color:var(--red)">
+      <div class="stat-num" style="color:var(--red)" id="stat-total">0</div>
+      <div class="stat-label">👥 Total Registered</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="icon">📌</span> Quick Summary</div>
+      <div id="dashboardSummary">
+        <div class="info-box">
+          <h4>🏖️ Destination</h4>
+          <ul>
+            <li>Đà Nẵng — Beach city & modern attractions</li>
+            <li>Hội An — Ancient town & cultural gems</li>
+          </ul>
+        </div>
+        <div class="info-box" style="border-color:var(--teal)">
+          <h4>📣 Next Step</h4>
+          <ul>
+            <li>Vote on the polls to lock in the trip month</li>
+            <li>Register your attendance in "Who's Coming"</li>
+            <li>Submit your passport details in Bookings</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">📢</span> Latest Announcements</div>
+      <div id="dashAnnouncements"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🗳️</span> Poll Snapshot</div>
+    <div class="grid-2" id="dashPollSnapshot"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🗺️</span> About the Destinations</div>
+    <div class="grid-2">
+      <div class="info-box">
+        <h4>🏙️ Đà Nẵng</h4>
+        <ul>
+          <li>Vietnam's 3rd largest city, on the central coast</li>
+          <li>Famous for Mỹ Khê Beach (My Khe), Dragon Bridge</li>
+          <li>Gateway to Bà Nà Hills & Golden Bridge</li>
+          <li>~1.5 hrs from Hội An by road (32 km)</li>
+          <li>Airport: Đà Nẵng International (DAD)</li>
+        </ul>
+      </div>
+      <div class="info-box" style="border-color:var(--teal)">
+        <h4>🏮 Hội An</h4>
+        <ul>
+          <li>UNESCO World Heritage Ancient Town</li>
+          <li>Famous for lanterns, tailors, cuisine & Thu Bồn River</li>
+          <li>Best explored on foot or bicycle</li>
+          <li>~30 min drive from Đà Nẵng</li>
+          <li>Best: sunset at the old town & river cruise</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== POLLS ===================== -->
+<div id="tab-polls" class="tab-content">
+
+  <!-- Poll deadline banner -->
+  <div id="pollDeadlineBanner" style="margin-bottom:16px;"></div>
+
+  <!-- Poll 1: Month -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📅</span> Poll 1 — Which month should we go?
+      <span id="p1-voted-badge" class="poll-voted-badge" style="display:none;">✓ Voted</span>
+      <span class="poll-closed-badge" style="display:none;background:var(--red);color:white;font-size:0.7rem;padding:2px 8px;border-radius:20px;font-weight:700;">🔒 CLOSED</span>
+    </div>
+    <div id="poll1-options"></div>
+    <div class="poll-count" id="poll1-count"></div>
+    <div style="margin-top:12px;font-size:0.8rem;color:var(--muted);">🌤️ Best weather: <span style="color:var(--green);font-weight:700;">Feb–May</span> (dry season) · Avoid Sep–Nov (typhoon season)</div>
+    <div class="mt8" id="poll1-actions"></div>
+  </div>
+
+  <!-- Poll 2: Joining -->
+  <div class="card">
+    <div class="card-title"><span class="icon">✋</span> Poll 2 — Are you joining?
+      <span id="p2-voted-badge" class="poll-voted-badge" style="display:none;">✓ Voted</span>
+      <span class="poll-closed-badge" style="display:none;background:var(--red);color:white;font-size:0.7rem;padding:2px 8px;border-radius:20px;font-weight:700;">🔒 CLOSED</span>
+    </div>
+    <div id="poll2-options"></div>
+    <div class="poll-count" id="poll2-count"></div>
+    <div class="mt8" id="poll2-actions"></div>
+  </div>
+
+  <!-- Poll 3: Companions -->
+  <div class="card">
+    <div class="card-title"><span class="icon">👨‍👩‍👧</span> Poll 3 — Are you bringing a companion?
+      <span id="p3-voted-badge" class="poll-voted-badge" style="display:none;">✓ Voted</span>
+      <span class="poll-closed-badge" style="display:none;background:var(--red);color:white;font-size:0.7rem;padding:2px 8px;border-radius:20px;font-weight:700;">🔒 CLOSED</span>
+    </div>
+    <div id="poll3-options"></div>
+    <div class="poll-count" id="poll3-count"></div>
+    <div class="mt8" id="poll3-actions"></div>
+    <div id="companion-count-section" style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
+      <p style="font-size:0.85rem;font-weight:600;margin-bottom:8px;">How many companions? (select one)</p>
+      <div id="poll3b-options"></div>
+      <div class="poll-count" id="poll3b-count"></div>
+      <div class="mt8" id="poll3b-actions"></div>
+    </div>
+  </div>
+
+  <!-- Poll 4: Activities -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🎯</span> Poll 4 — Preferred Activities
+      <span id="p4-voted-badge" class="poll-voted-badge" style="display:none;">✓ Voted</span>
+      <span class="poll-closed-badge" style="display:none;background:var(--red);color:white;font-size:0.7rem;padding:2px 8px;border-radius:20px;font-weight:700;">🔒 CLOSED</span>
+    </div>
+    <p style="font-size:0.83rem;color:var(--muted);margin-bottom:14px;">Select all that interest you (multi-choice). Votes are tallied to plan the itinerary.</p>
+    <div style="font-weight:700;font-size:0.88rem;margin-bottom:8px;color:var(--darkteal);">🏙️ Đà Nẵng Activities</div>
+    <div id="poll4-danang" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;"></div>
+    <div style="font-weight:700;font-size:0.88rem;margin-bottom:8px;color:var(--darkteal);">🏮 Hội An Activities</div>
+    <div id="poll4-hoian" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;"></div>
+    <div class="mt8" id="poll4-actions"></div>
+  </div>
+</div>
+
+<!-- ===================== ATTENDANCE ===================== -->
+<div id="tab-attendance" class="tab-content">
+  <div class="card">
+    <div class="card-title"><span class="icon">👥</span> Attendance Log
+      <span id="attendanceCount" class="badge badge-teal" style="margin-left:auto;">0 registered</span>
+    </div>
+    <button class="btn btn-primary" onclick="openModal('attendanceModal')" style="margin-bottom:14px;">➕ Register Yourself</button>
+    <div style="overflow-x:auto;">
+      <table class="attendance-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Companions</th>
+            <th>Contact</th>
+            <th>Room Pref.</th>
+            <th>Dietary</th>
+            <th>Savings Sent</th>
+            <th id="attendanceAdminCol" style="display:none;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="attendanceBody">
+          <tr><td colspan="9"><div class="empty-state"><div class="icon">🏖️</div>No one registered yet. Be the first!</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ITINERARY ===================== -->
+<div id="tab-itinerary" class="tab-content">
+  <div class="card">
+    <div class="card-title"><span class="icon">🗓️</span> Sample 7-Day Itinerary
+      <span class="badge badge-gold">Draft</span>
+    </div>
+    <p class="text-muted" style="margin-bottom:16px;">This is a suggested itinerary. Final plan will depend on poll results and group preferences.</p>
+    <div id="itineraryDays"></div>
+    <div id="adminItineraryBtn" style="display:none;margin-top:10px;">
+      <button class="btn btn-primary" onclick="openModal('addItineraryModal')">➕ Add Day / Edit</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ACTIVITIES ===================== -->
+<div id="tab-activities" class="tab-content">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="icon">🏙️</span> Đà Nẵng Activities</div>
+      <div id="danangActivitiesList"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">🏮</span> Hội An Activities</div>
+      <div id="hoianActivitiesList"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="icon">🍜</span> Must-Try Food in Vietnam</div>
+    <div class="grid-3" id="foodList"></div>
+  </div>
+</div>
+
+<!-- ===================== FLIGHTS ===================== -->
+<div id="tab-flights" class="tab-content">
+  <div class="card">
+    <div class="card-title"><span class="icon">✈️</span> Flight Options to Đà Nẵng (DAD)</div>
+    <div class="secure-note" style="background:#e8f0fe;border-color:#3b5bdb;color:#1a3399;">
+      ℹ️ Prices are estimates. Always check airline websites for current fares. Book early for best group rates.
+    </div>
+    <div id="flightsList"></div>
+    <div id="adminFlightBtn" style="display:none;margin-top:10px;">
+      <button class="btn btn-primary" onclick="openModal('addFlightModal')">➕ Add Flight Option</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="icon">💡</span> Flight Tips</div>
+    <div class="info-box">
+      <h4>📌 Booking Tips</h4>
+      <ul>
+        <li>Book at least 3–6 months in advance for group of 10–20</li>
+        <li>Consider group booking discounts — call airlines directly</li>
+        <li>MNL → DAD direct: ~3 hours · Via SGN/HAN: ~5–7 hours</li>
+        <li>Cebu Pacific & AirAsia often have promos — check their sale calendars</li>
+        <li>Baggage allowance: agree on a standard (20–25kg checked recommended)</li>
+        <li>Travel insurance is highly recommended for the whole group</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ANNOUNCEMENTS ===================== -->
+<div id="tab-announcements" class="tab-content">
+  <div class="card">
+    <div class="card-title"><span class="icon">📢</span> Announcements & Reminders</div>
+    <div id="adminAnnouncementBtn" style="display:none;margin-bottom:12px;">
+      <button class="btn btn-primary" onclick="openModal('addAnnouncementModal')">📣 Post Announcement</button>
+    </div>
+    <div id="announcementsList"></div>
+  </div>
+</div>
+
+<!-- ===================== BOOKINGS ===================== -->
+<div id="tab-bookings" class="tab-content">
+  <div class="card">
+    <div class="card-title"><span class="icon">🔐</span> Secure Booking Details</div>
+    <div class="secure-note">
+      🔒 Your details are stored locally and visible only to the admin. Never share your password with anyone.
+    </div>
+    <button class="btn btn-gold" onclick="openModal('bookingFormModal')" style="margin-bottom:16px;">
+      📝 Submit My Booking Details
+    </button>
+    <div id="adminBookingsSection" style="display:none;">
+      <hr class="divider">
+      <div class="card-title" style="font-size:0.88rem;border:none;padding:0;margin-bottom:12px;">📋 Admin View — Submitted Details</div>
+      <div id="bookingsList"></div>
+    </div>
+    <div id="memberBookingStatus"></div>
+  </div>
+</div>
+
+<!-- ===================== BUDGET ===================== -->
+<div id="tab-budget" class="tab-content">
+  <div class="card">
+    <div class="card-title"><span class="icon">💰</span> Budget Estimator (per person)</div>
+    <p class="text-muted" style="margin-bottom:14px;">Adjust the sliders to estimate your trip cost. All amounts in Philippine Peso (₱). Exchange: ₱1 ≈ 0.48 VND (approx)</p>
+    <div id="budgetItems"></div>
+    <div class="budget-total" id="budgetTotal">
+      <span>Estimated Total (per person)</span>
+      <span id="budgetTotalAmount">₱0</span>
+    </div>
+    <div class="mt16">
+      <div class="info-box">
+        <h4>💱 Quick Currency Guide</h4>
+        <ul>
+          <li>₱1,000 Philippine Peso ≈ 480,000–500,000 Vietnamese Dong (VND)</li>
+          <li>Street food: 20,000–50,000 VND (~₱40–100)</li>
+          <li>Restaurant meal: 80,000–200,000 VND (~₱160–400)</li>
+          <li>Grab ride in Da Nang: 30,000–80,000 VND (~₱60–160)</li>
+          <li>Beer (Bia Hơi): 5,000–20,000 VND (~₱10–40) 🍺</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="icon">💵</span> Monthly Savings Tracker — 👩‍💼 Treasurer: Emmalyn</div>
+    <p class="text-muted" style="margin-bottom:14px;">Track each member's monthly contributions toward the total trip cost. Admin records payments; members see their own progress.</p>
+
+    <!-- Target & Summary Row -->
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;align-items:flex-end;">
+      <div style="flex:1;min-width:180px;">
+        <label style="font-size:0.8rem;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;">🎯 Target Amount per Person (₱)</label>
+        <input type="number" id="savingsTarget" min="0" step="500"
+          style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:0.95rem;font-weight:700;"
+          onchange="saveSavingsTarget(this.value)" placeholder="Auto-filled from estimator above">
+      </div>
+      <div id="savingsSummaryBar" style="flex:2;min-width:200px;"></div>
+    </div>
+
+    <div id="adminAddPaymentBtn" style="display:none;margin-bottom:14px;">
+      <button class="btn btn-gold" onclick="openModal('addPaymentModal')">➕ Record a Payment</button>
+    </div>
+
+    <div id="savingsTrackerList"></div>
+  </div>
+</div>
+
+<!-- Add Payment Modal -->
+<div class="modal-overlay" id="addPaymentModal">
+  <div class="modal">
+    <div class="modal-title">💰 Record Monthly Payment</div>
+    <div class="form-group">
+      <label>Member *</label>
+      <select id="pay-member"></select>
+    </div>
+    <div class="form-group">
+      <label>Amount (₱) *</label>
+      <input type="number" id="pay-amount" min="0" step="100" placeholder="e.g. 2000">
+    </div>
+    <div class="form-group">
+      <label>Month *</label>
+      <input type="month" id="pay-month">
+    </div>
+    <div class="form-group">
+      <label>Date Received</label>
+      <input type="date" id="pay-date">
+    </div>
+    <div class="form-group">
+      <label>Note (optional)</label>
+      <input type="text" id="pay-note" placeholder="e.g. GCash, Bank transfer, Cash">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addPaymentModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="submitPayment()">💾 Save Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ESSENTIALS ===================== -->
+<div id="tab-essentials" class="tab-content">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="icon">🌤️</span> Best Time to Visit</div>
+      <p class="text-muted" style="margin-bottom:10px;">Da Nang & Hoi An weather guide:</p>
+      <div style="margin-bottom:8px;">
+        <span class="weather-month weather-good">Jan ☀️</span>
+        <span class="weather-month weather-good">Feb ☀️</span>
+        <span class="weather-month weather-good">Mar ☀️</span>
+        <span class="weather-month weather-good">Apr 🌤️</span>
+        <span class="weather-month weather-good">May 🌤️</span>
+        <span class="weather-month weather-ok">Jun 🌦️</span>
+        <span class="weather-month weather-ok">Jul 🌦️</span>
+        <span class="weather-month weather-ok">Aug 🌦️</span>
+        <span class="weather-month weather-bad">Sep 🌧️</span>
+        <span class="weather-month weather-bad">Oct 🌧️</span>
+        <span class="weather-month weather-bad">Nov 🌧️</span>
+        <span class="weather-month weather-ok">Dec 🌤️</span>
+      </div>
+      <div class="info-box" style="margin-top:8px;">
+        <h4>Legend</h4>
+        <ul>
+          <li><span style="color:var(--green);font-weight:700;">Green</span> = Best months (dry, sunny)</li>
+          <li><span style="color:var(--orange);font-weight:700;">Yellow</span> = OK (warm, some rain)</li>
+          <li><span style="color:var(--red);font-weight:700;">Red</span> = Typhoon/flood season — avoid</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">🧳</span> Packing Checklist</div>
+      <div id="packingList"></div>
+      <button class="btn btn-outline btn-sm mt8" onclick="resetPacking()">🔄 Reset Checklist</button>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title"><span class="icon">🛂</span> Travel Requirements (PH → VN)</div>
+      <div class="info-box">
+        <h4>🇵🇭 Philippine Citizens</h4>
+        <ul>
+          <li>Visa-free entry to Vietnam for up to <strong>30 days</strong></li>
+          <li>Valid passport (min. 6 months from travel date)</li>
+          <li>Return/onward ticket required</li>
+          <li>No visa needed — just show at immigration</li>
+          <li>E-visa available if staying longer than 30 days</li>
+        </ul>
+      </div>
+      <div class="info-box" style="border-color:var(--teal)">
+        <h4>📋 Immigration Tips</h4>
+        <ul>
+          <li>Fill out arrival card on the plane</li>
+          <li>Keep hotel address handy (immigration may ask)</li>
+          <li>Currency declaration not required under $5,000 USD</li>
+          <li>Health declaration: check current requirements</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="icon">🚑</span> Emergency Contacts</div>
+      <div class="info-box">
+        <h4>🇻🇳 Vietnam Emergency Numbers</h4>
+        <ul>
+          <li>Police: <strong>113</strong></li>
+          <li>Fire: <strong>114</strong></li>
+          <li>Ambulance: <strong>115</strong></li>
+          <li>Tourist Police Da Nang: <strong>(0236) 384 0800</strong></li>
+        </ul>
+      </div>
+      <div class="info-box" style="border-color:var(--teal)">
+        <h4>🏥 Hospitals in Da Nang</h4>
+        <ul>
+          <li>Da Nang General Hospital: (0236) 382 1480</li>
+          <li>Family Medical Practice Da Nang: (0236) 358 1699</li>
+          <li>Vinmec Da Nang International: (0236) 3711 111</li>
+        </ul>
+      </div>
+      <div class="info-box" style="border-color:var(--red)">
+        <h4>🇵🇭 Philippine Embassy in Hanoi</h4>
+        <ul>
+          <li>Tel: +84 (24) 3843 3948</li>
+          <li>Emergency: +84 (24) 3943 7948</li>
+          <li>Note: Nearest consulate to Da Nang is in Ho Chi Minh City</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">📱</span> Useful Apps & Tips</div>
+    <div class="grid-3">
+      <div class="info-box">
+        <h4>📱 Essential Apps</h4>
+        <ul>
+          <li>Grab — rides & food delivery</li>
+          <li>Google Maps (download offline)</li>
+          <li>Google Translate (VN offline pack)</li>
+          <li>XE Currency — real-time exchange</li>
+          <li>Klook / Viator — activities booking</li>
+        </ul>
+      </div>
+      <div class="info-box">
+        <h4>📡 Connectivity</h4>
+        <ul>
+          <li>SIM card at airport (~100k–150k VND)</li>
+          <li>Recommended: Viettel or Vietnamobile</li>
+          <li>3GB–5GB data for ~7 days</li>
+          <li>Free WiFi at most hotels & restaurants</li>
+          <li>E-SIM: Airalo works well in Vietnam</li>
+        </ul>
+      </div>
+      <div class="info-box">
+        <h4>💡 Money Tips</h4>
+        <ul>
+          <li>ATMs widely available in Da Nang</li>
+          <li>Notify your bank before travel</li>
+          <li>Cash is king in local markets/Hoi An</li>
+          <li>Exchange at banks for better rates</li>
+          <li>Avoid airport money changers (bad rates)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ===================== MODALS ===================== -->
+
+<!-- Admin Login -->
+<div class="modal-overlay" id="adminLoginModal">
+  <div class="modal">
+    <div class="modal-title">🔐 Admin Login</div>
+    <div class="form-group">
+      <label>Admin Password</label>
+      <input type="password" id="adminPassInput" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doAdminLogin()">
+    </div>
+    <div id="adminLoginError" style="color:var(--red);font-size:0.82rem;margin-top:4px;display:none;">Incorrect password.</div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('adminLoginModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="doAdminLogin()">Login</button>
+    </div>
+  </div>
+</div>
+
+<!-- Trip Date Modal -->
+<div class="modal-overlay" id="tripDateModal">
+  <div class="modal">
+    <div class="modal-title">📅 Set Trip Start Date</div>
+    <div class="form-group">
+      <label>Trip Start Date</label>
+      <input type="date" id="tripDateInput">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('tripDateModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTripDate()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Attendance Modal -->
+<div class="modal-overlay" id="attendanceModal">
+  <div class="modal">
+    <div class="modal-title">👤 Register for the Trip</div>
+    <div class="form-group">
+      <label>Full Name *</label>
+      <input type="text" id="att-name" placeholder="Your full name">
+    </div>
+    <div class="form-group">
+      <label>Status *</label>
+      <select id="att-status">
+        <option value="confirmed">✅ Confirmed — I'm going!</option>
+        <option value="maybe">🤔 Maybe — Still deciding</option>
+        <option value="no">❌ Not joining</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Number of Companions (0 if solo)</label>
+      <input type="number" id="att-companions" min="0" max="10" value="0">
+    </div>
+    <div class="form-group">
+      <label>Contact Number</label>
+      <input type="text" id="att-contact" placeholder="+63 9XX XXX XXXX">
+    </div>
+    <div class="form-group">
+      <label>Room Preference</label>
+      <select id="att-room">
+        <option value="shared">Shared room (budget-friendly)</option>
+        <option value="twin">Twin room</option>
+        <option value="double">Double room</option>
+        <option value="solo">Solo room</option>
+        <option value="flexible">Flexible</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Dietary Restrictions</label>
+      <input type="text" id="att-dietary" placeholder="e.g. Vegetarian, No pork, Allergies...">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('attendanceModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAttendance()">Register</button>
+    </div>
+  </div>
+</div>
+
+<!-- Announcement Modal -->
+<div class="modal-overlay" id="addAnnouncementModal">
+  <div class="modal">
+    <div class="modal-title">📣 Post Announcement</div>
+    <div class="form-group">
+      <label>Title *</label>
+      <input type="text" id="ann-title" placeholder="Announcement title">
+    </div>
+    <div class="form-group">
+      <label>Type</label>
+      <select id="ann-type">
+        <option value="normal">📌 General</option>
+        <option value="urgent">🚨 Urgent</option>
+        <option value="info">ℹ️ Info</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Message *</label>
+      <textarea id="ann-body" placeholder="Write your announcement here..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addAnnouncementModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAnnouncement()">Post</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Flight Modal -->
+<div class="modal-overlay" id="addFlightModal">
+  <div class="modal">
+    <div class="modal-title">✈️ Add Flight Option</div>
+    <div class="form-group">
+      <label>Airline</label>
+      <input type="text" id="fl-airline" placeholder="e.g. Cebu Pacific">
+    </div>
+    <div class="form-group">
+      <label>Route (Origin → Destination)</label>
+      <input type="text" id="fl-route" placeholder="e.g. MNL → DAD">
+    </div>
+    <div class="form-group">
+      <label>Departure Time</label>
+      <input type="text" id="fl-dep" placeholder="e.g. 06:00">
+    </div>
+    <div class="form-group">
+      <label>Arrival Time</label>
+      <input type="text" id="fl-arr" placeholder="e.g. 08:30">
+    </div>
+    <div class="form-group">
+      <label>Duration</label>
+      <input type="text" id="fl-dur" placeholder="e.g. 2h 30m">
+    </div>
+    <div class="form-group">
+      <label>Est. Price (per person)</label>
+      <input type="text" id="fl-price" placeholder="e.g. ₱4,500">
+    </div>
+    <div class="form-group">
+      <label>Notes</label>
+      <input type="text" id="fl-notes" placeholder="e.g. Direct, includes 7kg hand-carry">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addFlightModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitFlight()">Add Flight</button>
+    </div>
+  </div>
+</div>
+
+<!-- Booking Form Modal -->
+<div class="modal-overlay" id="bookingFormModal">
+  <div class="modal">
+    <div class="modal-title">🔐 Submit Booking Details</div>
+    <div class="secure-note">🔒 This information is stored securely and only visible to the trip admin.</div>
+    <div class="form-group">
+      <label>Full Name (as in passport) *</label>
+      <input type="text" id="bk-name" placeholder="e.g. Juan Dela Cruz">
+    </div>
+    <div class="form-group">
+      <label>Passport Number *</label>
+      <input type="text" id="bk-passport" placeholder="e.g. P1234567A">
+    </div>
+    <div class="form-group">
+      <label>Passport Expiry Date *</label>
+      <input type="date" id="bk-expiry">
+    </div>
+    <div class="form-group">
+      <label>Date of Birth</label>
+      <input type="date" id="bk-dob">
+    </div>
+    <div class="form-group">
+      <label>Nationality</label>
+      <input type="text" id="bk-nationality" value="Filipino">
+    </div>
+    <div class="form-group">
+      <label>Preferred Flight (from Flights tab)</label>
+      <input type="text" id="bk-flight" placeholder="e.g. 5J 231 / Cebu Pacific MNL–DAD">
+    </div>
+    <div class="form-group">
+      <label>Flight Booking Reference (if already booked)</label>
+      <input type="text" id="bk-ref" placeholder="e.g. ABCD12">
+    </div>
+    <div class="form-group">
+      <label>Hotel Preference / Notes</label>
+      <textarea id="bk-notes" placeholder="Any special requests or notes for admin..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Emergency Contact Name</label>
+      <input type="text" id="bk-ec-name" placeholder="e.g. Maria Dela Cruz (sister)">
+    </div>
+    <div class="form-group">
+      <label>Emergency Contact Number</label>
+      <input type="text" id="bk-ec-num" placeholder="+63 9XX XXX XXXX">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('bookingFormModal')">Cancel</button>
+      <button class="btn btn-gold" onclick="submitBooking()">🔒 Submit to Admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Itinerary Day Modal -->
+<div class="modal-overlay" id="addItineraryModal">
+  <div class="modal">
+    <div class="modal-title">📅 Add/Edit Itinerary Day</div>
+    <div class="form-group">
+      <label>Day Label *</label>
+      <input type="text" id="itin-day" placeholder="e.g. Day 1 — Arrival in Da Nang">
+    </div>
+    <div class="form-group">
+      <label>Location</label>
+      <input type="text" id="itin-loc" placeholder="e.g. Đà Nẵng">
+    </div>
+    <div class="form-group">
+      <label>Schedule (Morning)</label>
+      <textarea id="itin-morning" placeholder="Morning activities..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Schedule (Afternoon)</label>
+      <textarea id="itin-afternoon" placeholder="Afternoon activities..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Schedule (Evening)</label>
+      <textarea id="itin-evening" placeholder="Evening activities..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addItineraryModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitItineraryDay()">Save Day</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Google Sheets Setup Modal -->
+<div class="modal-overlay" id="sheetsSetupModal">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-title">⚙️ Google Sheets Sync Setup</div>
+
+    <div class="secure-note" style="background:#e8f0fe;border-color:#3b5bdb;color:#1a3399;margin-bottom:16px;">
+      🔗 Once set up, all votes, attendance, savings, and announcements sync to your Google Sheet automatically — everyone sees the same data in real time.
+    </div>
+
+    <!-- Step 1 -->
+    <div style="margin-bottom:16px;">
+      <div style="font-weight:700;font-size:0.9rem;color:var(--darkteal);margin-bottom:8px;">Step 1 — Create your Google Sheet</div>
+      <div class="text-muted" style="margin-bottom:6px;">Go to <a href="https://sheets.new" target="_blank" style="color:var(--teal);">sheets.new</a> to create a new Google Sheet. Name it "Vietnam Trip 2027" (or anything you like).</div>
+    </div>
+
+    <!-- Step 2 -->
+    <div style="margin-bottom:16px;">
+      <div style="font-weight:700;font-size:0.9rem;color:var(--darkteal);margin-bottom:8px;">Step 2 — Open Apps Script</div>
+      <div class="text-muted" style="margin-bottom:6px;">In your Sheet, click <strong>Extensions → Apps Script</strong>. Delete any existing code, then paste in the code below:</div>
+      <div class="code-block" id="appsScriptCode"></div>
+      <button class="btn btn-sm btn-primary" style="margin-top:8px;" onclick="copyAppsScript()">📋 Copy Code</button>
+    </div>
+
+    <!-- Step 3 -->
+    <div style="margin-bottom:16px;">
+      <div style="font-weight:700;font-size:0.9rem;color:var(--darkteal);margin-bottom:8px;">Step 3 — Deploy as Web App</div>
+      <div class="text-muted">
+        1. Click <strong>Deploy → New deployment</strong><br>
+        2. Click the ⚙️ gear next to "Type" → select <strong>Web app</strong><br>
+        3. Set <strong>"Execute as"</strong> → <em>Me</em><br>
+        4. Set <strong>"Who has access"</strong> → <em>Anyone</em><br>
+        5. Click <strong>Deploy</strong> → copy the <strong>Web app URL</strong>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div style="margin-bottom:4px;">
+      <div style="font-weight:700;font-size:0.9rem;color:var(--darkteal);margin-bottom:8px;">Step 4 — Paste your Web App URL below</div>
+      <div class="form-group">
+        <input type="text" id="scriptUrlInput" placeholder="https://script.google.com/macros/s/YOUR_ID/exec"
+          style="font-size:0.82rem;">
+      </div>
+    </div>
+
+    <div id="sheetsConnectStatus" style="font-size:0.82rem;margin-bottom:8px;"></div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('sheetsSetupModal')">Close</button>
+      <button class="btn btn-red btn-sm" onclick="disconnectSheets()" style="margin-right:auto;">Disconnect</button>
+      <button class="btn btn-gold" onclick="saveScriptUrl()">🔗 Connect & Sync</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== POLL DEADLINE =====================
+const POLL_CLOSE_DATE = new Date('2026-08-30T23:59:59');
+function pollsAreClosed() { return new Date() > POLL_CLOSE_DATE; }
+function daysUntilPollClose() {
+  const diff = POLL_CLOSE_DATE - new Date();
+  return diff > 0 ? Math.ceil(diff / 86400000) : 0;
+}
+
+// ===================== STATE =====================
+const ADMIN_PASS = 'vietnam2027';
+let isAdmin = false;
+let state = loadState();
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('vn-trip-planner-v2') || '{}');
+    return {
+      tripDate: s.tripDate || null,
+      polls: s.polls || { p1:{}, p2:{}, p3:{}, p3b:{}, p4_danang:{}, p4_hoian:{} },
+      attendance: s.attendance || [],
+      announcements: s.announcements || getDefaultAnnouncements(),
+      flights: s.flights || getDefaultFlights(),
+      bookings: s.bookings || [],
+      itinerary: s.itinerary || getDefaultItinerary(),
+      budgetValues: s.budgetValues || {},
+      deposits: s.deposits || {},
+      savings: s.savings || {},
+      savingsTarget: s.savingsTarget || 0,
+      myVotes: s.myVotes || {},
+      packingChecked: s.packingChecked || {}
+    };
+  } catch(e) { return getDefaultState(); }
+}
+
+function saveState() {
+  localStorage.setItem('vn-trip-planner-v2', JSON.stringify(state));
+}
+
+function getDefaultState() {
+  return {
+    tripDate: null, polls: { p1:{}, p2:{}, p3:{}, p3b:{}, p4_danang:{}, p4_hoian:{} },
+    attendance: [], announcements: getDefaultAnnouncements(),
+    flights: getDefaultFlights(), bookings: [], itinerary: getDefaultItinerary(),
+    budgetValues: {}, deposits: {}, savings: {}, savingsTarget: 0, myVotes: {}, packingChecked: {}
+  };
+}
+
+// ===================== DATA =====================
+function getDefaultAnnouncements() {
+  return [
+    { id: 1, title: '🎉 Trip Planning Has Begun!', type: 'info', body: 'Welcome to our Vietnam trip planner! Please vote on the polls, register your attendance, and submit your passport details via the Bookings tab. Let\'s make this trip amazing!', date: '2026-06-20' },
+    { id: 2, title: '⏰ Polls Close Soon — Vote Now!', type: 'urgent', body: 'Please vote on all 4 polls before the deadline. Your votes help us plan the best itinerary and activities for everyone in the group.', date: '2026-06-20' },
+    { id: 3, title: '💰 Monthly Savings / Installment Plan', type: 'info', body: 'To help everyone manage the cost, we are setting up a savings or installment plan! Instead of a one-time payment, you may send your monthly contribution to our trip treasurer 👩‍💼 Emmalyn before the actual trip date. The monthly amount will be based on the total per headcount cost divided by the number of months remaining. Please coordinate directly with Emmalyn for your preferred schedule and payment method. Let\'s save together for this amazing trip! 🇻🇳🙌', date: '2026-06-20' }
+  ];
+}
+
+function getDefaultFlights() {
+  return [
+    { id: 1, airline: 'Cebu Pacific', route: 'MNL → DAD', dep: '06:10', arr: '08:40', dur: '2h 30m', price: '₱3,500–6,000', notes: 'Direct flight · Baggage: 7kg hand-carry incl.' },
+    { id: 2, airline: 'Philippine Airlines', route: 'MNL → DAD', dep: '09:30', arr: '12:10', dur: '2h 40m', price: '₱5,000–9,000', notes: 'Direct · 7kg hand-carry + 23kg check-in' },
+    { id: 3, airline: 'AirAsia', route: 'MNL → DAD', dep: '13:15', arr: '15:55', dur: '2h 40m', price: '₱2,800–5,500', notes: 'Direct · Additional baggage sold separately' },
+    { id: 4, airline: 'Vietnam Airlines', route: 'MNL → SGN → DAD', dep: '08:00', arr: '14:30', dur: '~6h (via HCM)', price: '₱6,000–11,000', notes: 'Via Ho Chi Minh City · Full service carrier' },
+  ];
+}
+
+function getDefaultItinerary() {
+  return [
+    { id:1, day:'Day 1 — Arrival in Đà Nẵng', location:'Đà Nẵng', morning:'Arrive at Đà Nẵng International Airport (DAD). Immigration & baggage claim. Transfer to hotel and check-in.', afternoon:'Rest and freshen up. Orientation walk along Mỹ Khê Beach. Lunch at beachfront restaurant.', evening:'Dinner at a local seafood restaurant. Visit Dragon Bridge — watch the dragon breathe fire & water (weekends, 9PM). Night market stroll.' },
+    { id:2, day:'Day 2 — Đà Nẵng Highlights', location:'Đà Nẵng', morning:'Breakfast at hotel. Visit Marble Mountains (Ngũ Hành Sơn) — caves, temples & panoramic views.', afternoon:'Mỹ Khê Beach time — swimming, sunbathing, beach volleyball. Cable car to Sơn Trà Peninsula (Monkey Mountain) option.', evening:'Dinner at Han Market area. Explore Đà Nẵng Night Market along Han River.' },
+    { id:3, day:'Day 3 — Bà Nà Hills & Golden Bridge', location:'Đà Nẵng', morning:'Early departure to Bà Nà Hills. Take the world-record cable car up to the summit (1,400m).', afternoon:'Explore the Golden Bridge (Cầu Vàng) 🌉 — the giant hands holding the bridge! French Village, Fantasy Park amusement area.', evening:'Return to Da Nang. Dinner and rest. Pack light bag for Hội An day trips.' },
+    { id:4, day:'Day 4 — Transfer to Hội An', location:'Hội An', morning:'Check out of Da Nang hotel. ~30-45 min drive to Hội An. Check in at Hội An accommodation.', afternoon:'Explore Hội An Ancient Town on foot. Japanese Covered Bridge, Assembly Halls, merchant houses. Try Cao Lầu noodles!', evening:'Buy & release floating lanterns on the Thu Bồn River 🏮. Night market at Nguyễn Hoàng Street. Watch traditional performances.' },
+    { id:5, day:'Day 5 — Hội An Culture Day', location:'Hội An', morning:'Morning cooking class — learn to make Bánh Mì, White Rose Dumplings & Hội An specialties. Or bike ride to countryside villages.', afternoon:'Visit tailors — get custom Áo Dài or clothing made (needs 24–48hr lead time). Bicycle tour of rice fields.', evening:'Sunset at An Bàng Beach or Cửa Đại Beach. Dinner at a riverside restaurant.' },
+    { id:6, day:'Day 6 — Leisure & Shopping', location:'Hội An / Đà Nẵng', morning:'Free morning for last-minute shopping, tailored clothing pickup, souvenir shopping in Ancient Town.', afternoon:'Return to Đà Nẵng. Optional: Linh Ứng Pagoda on Sơn Trà Peninsula. Check in at Da Nang hotel.', evening:'Farewell dinner 🥂 — group celebration! Han River bridge views by night.' },
+    { id:7, day:'Day 7 — Departure', location:'Đà Nẵng', morning:'Hotel breakfast. Check out. Last-minute shopping or coffee at local café.', afternoon:'Transfer to Đà Nẵng Airport. Departures. Fly home with amazing memories! 🇻🇳❤️', evening:'Safe travels everyone! 🙏' }
+  ];
+}
+
+const POLL1_OPTIONS = [
+  { id:'jan', label:'January', icon:'❄️' }, { id:'feb', label:'February', icon:'💕' },
+  { id:'mar', label:'March', icon:'🌸' }, { id:'apr', label:'April', icon:'🌺' },
+  { id:'may', label:'May', icon:'☀️' }, { id:'jun', label:'June', icon:'🌤️' },
+  { id:'jul', label:'July', icon:'🌦️' }, { id:'aug', label:'August', icon:'🌦️' },
+  { id:'sep', label:'September', icon:'🌧️' }, { id:'oct', label:'October', icon:'🌧️' },
+  { id:'nov', label:'November', icon:'🌧️' }, { id:'dec', label:'December', icon:'🎄' }
+];
+const POLL2_OPTIONS = [
+  { id:'yes', label:'Yes, I\'m going! 🎉', icon:'✅' },
+  { id:'maybe', label:'Maybe / Still deciding 🤔', icon:'🤔' },
+  { id:'no', label:'Can\'t make it ❌', icon:'❌' }
+];
+const POLL3_OPTIONS = [
+  { id:'yes', label:'Yes, I\'m bringing companions', icon:'👨‍👩‍👧' },
+  { id:'no', label:'No, going solo', icon:'🧳' }
+];
+const POLL3B_OPTIONS = [
+  { id:'1', label:'1 companion', icon:'👫' },
+  { id:'2', label:'2 companions', icon:'👪' },
+  { id:'3', label:'3 companions', icon:'👨‍👩‍👧' },
+  { id:'4+', label:'4 or more', icon:'🏘️' }
+];
+const ACTIVITIES_DANANG = [
+  { id:'beach', label:'Mỹ Khê Beach 🏖️', desc:'Swim & relax on one of Asia\'s best beaches' },
+  { id:'dragon', label:'Dragon Bridge 🐉', desc:'Watch fire & water show on weekends at 9PM' },
+  { id:'marble', label:'Marble Mountains ⛰️', desc:'Caves, temples & panoramic city views' },
+  { id:'bana', label:'Bà Nà Hills 🚡', desc:'Cable car & the famous Golden Bridge' },
+  { id:'golden', label:'Golden Bridge 🌉', desc:'Iconic giant hands holding the walkway' },
+  { id:'han', label:'Han Market 🛍️', desc:'Local market for souvenirs & fresh produce' },
+  { id:'sontra', label:'Sơn Trà Peninsula 🐒', desc:'Monkey mountain, Linh Ứng Pagoda & sea views' },
+  { id:'nightmarket', label:'Night Market 🌙', desc:'Street food & shopping along the Han River' },
+  { id:'museum', label:'Cham Museum 🏛️', desc:'Ancient Cham Kingdom artifacts & sculptures' },
+  { id:'kayak', label:'Kayaking / Water Sports 🚣', desc:'Sea kayak, jet ski, banana boat at the beach' },
+];
+const ACTIVITIES_HOIAN = [
+  { id:'ancienttown', label:'Ancient Town Walk 🏘️', desc:'UNESCO World Heritage street exploration' },
+  { id:'lantern', label:'Lantern Making 🏮', desc:'Make your own Vietnamese lantern' },
+  { id:'river', label:'Thu Bồn River Boat 🚤', desc:'Floating lanterns & riverside cruise' },
+  { id:'cooking', label:'Cooking Class 👩‍🍳', desc:'Learn Cao Lầu, White Rose & Vietnamese dishes' },
+  { id:'tailor', label:'Custom Tailor 👗', desc:'Get Áo Dài or custom clothing made in 24–48hrs' },
+  { id:'bicycle', label:'Countryside Bike Ride 🚲', desc:'Rice paddies & local villages by bicycle' },
+  { id:'beach2', label:'An Bàng Beach 🏝️', desc:'Quieter beach near Hội An, great sunset spot' },
+  { id:'japanese', label:'Japanese Bridge 🌉', desc:'Iconic 18th-century covered bridge' },
+  { id:'hotpot', label:'Hội An Street Food 🍜', desc:'Cao Lầu, Bánh Mì Phượng, White Rose Dumplings' },
+  { id:'photos', label:'Sunrise Photo Walk 📸', desc:'Golden hour photography in the ancient streets' },
+];
+
+const BUDGET_ITEMS = [
+  { id:'flight', label:'✈️ Round-trip Flight (per person)', default: 5000, min: 2000, max: 20000, step: 500 },
+  { id:'hotel', label:'🏨 Hotel (per night, per person share)', default: 1000, min: 500, max: 5000, step: 200 },
+  { id:'nights', label:'🌙 Number of Nights', default: 6, min: 3, max: 14, step: 1, isCount: true },
+  { id:'food', label:'🍜 Food Budget (per day)', default: 800, min: 300, max: 3000, step: 100 },
+  { id:'activities', label:'🎯 Activities Budget (total)', default: 3000, min: 500, max: 15000, step: 500 },
+  { id:'shopping', label:'🛍️ Shopping / Souvenirs', default: 2000, min: 0, max: 10000, step: 500 },
+  { id:'transport', label:'🚌 Local Transport (total)', default: 1500, min: 500, max: 5000, step: 200 },
+  { id:'misc', label:'💊 Misc / Medicines / Tips', default: 1000, min: 0, max: 5000, step: 200 },
+];
+
+const PACKING_LIST = [
+  { cat: '📄 Documents', items: ['Passport (6+ months validity)', 'Return flight tickets (printed/digital)', 'Travel insurance documents', 'Hotel booking confirmation', 'Emergency contact card', 'Cash (VND + PHP)'] },
+  { cat: '👕 Clothing', items: ['Light breathable tops (heat!)', 'Shorts & comfortable pants', 'Light jacket / cardigan (AC in malls)', 'Swimwear & beach cover-up', 'Comfy walking shoes', 'Flip flops / sandals', 'Rain jacket or compact umbrella'] },
+  { cat: '🧴 Toiletries', items: ['Sunscreen SPF50+ (ESSENTIAL)', 'Insect repellent (DEET based)', 'Aloe vera gel (for sunburn)', 'Hand sanitizer', 'Tissue / wet wipes', 'Basic medicines (ibuprofen, antidiarrheal, antihistamine)', 'Motion sickness tablets (boat rides)'] },
+  { cat: '📱 Electronics', items: ['Smartphone + charger', 'Power bank (10,000mAh+)', 'Universal travel adapter', 'Camera / GoPro', 'Earphones', 'Download Google Maps offline (Vietnam)'] },
+  { cat: '🎒 Extras', items: ['Small daypack / sling bag', 'Reusable water bottle', 'Snacks for the flight', 'Travel pillow (for long flights)', 'Ziplock bags (for wet items)', 'Copies of documents (separate from originals)'] }
+];
+
+const FOOD_ITEMS = [
+  { name: 'Cao Lầu', emoji: '🍜', note: 'Hội An exclusive noodles' },
+  { name: 'Bánh Mì Phượng', emoji: '🥖', note: 'World famous Hội An sandwich' },
+  { name: 'White Rose Dumplings', emoji: '🥟', note: 'Unique to Hội An' },
+  { name: 'Bún Chả Cá', emoji: '🍲', note: 'Da Nang fish cake noodles' },
+  { name: 'Mì Quảng', emoji: '🍜', note: 'Central Vietnam turmeric noodles' },
+  { name: 'Fresh Spring Rolls', emoji: '🌿', note: 'Gỏi Cuốn — healthy & delicious' },
+  { name: 'Bánh Xèo', emoji: '🥞', note: 'Sizzling Vietnamese crepe' },
+  { name: 'Hải Sản (Seafood)', emoji: '🦞', note: 'Fresh seafood grills at beach restaurants' },
+  { name: 'Phở', emoji: '🍲', note: 'Vietnamese noodle soup classic' },
+  { name: 'Trà Đào (Peach Tea)', emoji: '🍑', note: 'Vietnam\'s favourite fruity iced tea' },
+  { name: 'Cà Phê Trứng', emoji: '☕', note: 'Egg coffee — rich & unique' },
+  { name: 'Bia Hơi (Fresh Beer)', emoji: '🍺', note: 'Draft beer as cheap as ₱10!' }
+];
+
+// ===================== TABS =====================
+function showTab(id) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  document.querySelector('[data-tab="' + id + '"]').classList.add('active');
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'polls') renderPolls();
+  if (id === 'attendance') renderAttendance();
+  if (id === 'itinerary') renderItinerary();
+  if (id === 'activities') renderActivities();
+  if (id === 'flights') renderFlights();
+  if (id === 'announcements') renderAnnouncements();
+  if (id === 'bookings') renderBookings();
+  if (id === 'budget') renderBudget();
+  if (id === 'essentials') renderEssentials();
+}
+
+// ===================== MODALS =====================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ===================== ADMIN =====================
+function toggleAdminLogin() {
+  if (isAdmin) { isAdmin = false; document.getElementById('adminBadge').textContent = '👤 Member'; updateAdminUI(); toast('Logged out'); }
+  else openModal('adminLoginModal');
+}
+function doAdminLogin() {
+  const val = document.getElementById('adminPassInput').value;
+  if (val === ADMIN_PASS) {
+    isAdmin = true;
+    document.getElementById('adminBadge').textContent = '⚙️ Admin';
+    closeModal('adminLoginModal');
+    document.getElementById('adminPassInput').value = '';
+    document.getElementById('adminLoginError').style.display = 'none';
+    updateAdminUI();
+    toast('Admin mode activated');
+  } else {
+    document.getElementById('adminLoginError').style.display = 'block';
+  }
+}
+function updateAdminUI() {
+  ['adminFlightBtn','adminAnnouncementBtn','adminItineraryBtn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isAdmin ? 'block' : 'none';
+  });
+  const ac = document.getElementById('attendanceAdminCol');
+  if (ac) ac.style.display = isAdmin ? '' : 'none';
+  const bs = document.getElementById('adminBookingsSection');
+  if (bs) bs.style.display = isAdmin ? 'block' : 'none';
+  renderAttendance(); renderBookings(); renderSavingsTracker();
+}
+
+// ===================== COUNTDOWN =====================
+function updateCountdown() {
+  if (!state.tripDate) { document.getElementById('tripDateDisplay').textContent = 'No date set yet'; return; }
+  const target = new Date(state.tripDate);
+  const now = new Date();
+  const diff = target - now;
+  if (diff <= 0) { document.getElementById('cd-days').textContent = '🎉'; document.getElementById('cd-hours').textContent = ''; document.getElementById('cd-mins').textContent = ''; return; }
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  document.getElementById('cd-days').textContent = days;
+  document.getElementById('cd-hours').textContent = hours;
+  document.getElementById('cd-mins').textContent = mins;
+  document.getElementById('tripDateDisplay').textContent = '📅 ' + target.toDateString();
+}
+function saveTripDate() {
+  state.tripDate = document.getElementById('tripDateInput').value;
+  saveState(); closeModal('tripDateModal'); updateCountdown(); toast('Trip date saved!');
+}
+setInterval(updateCountdown, 30000);
+
+// ===================== POLLS =====================
+function totalVotes(pollObj) { return Object.values(pollObj).reduce((a,b)=>a+b,0); }
+
+function renderPollOptions(containerId, options, pollKey, multi = false) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const poll = state.polls[pollKey] || {};
+  const myVote = state.myVotes[pollKey] || (multi ? [] : null);
+  const total = totalVotes(poll);
+  const closed = pollsAreClosed();
+  container.innerHTML = options.map(opt => {
+    const votes = poll[opt.id] || 0;
+    const pct = total > 0 ? Math.round((votes / total) * 100) : 0;
+    const voted = multi ? (Array.isArray(myVote) && myVote.includes(opt.id)) : (myVote === opt.id);
+    return `<div class="poll-option ${voted?'voted':''}"
+      onclick="castVote('${pollKey}','${opt.id}',${multi})"
+      style="${closed ? 'cursor:default;opacity:0.8;' : ''}">
+      <div class="poll-option-left">
+        <span>${opt.icon || '🔵'}</span>
+        <span>${opt.label}</span>
+        ${voted ? '<span class="poll-voted-badge">✓ Your vote</span>' : ''}
+      </div>
+      <div class="poll-bar-wrap"><div class="poll-bar" style="width:${pct}%"></div></div>
+      <div class="poll-pct">${pct}%</div>
+      <div style="font-size:0.75rem;color:var(--muted);min-width:28px;text-align:right;">${votes}</div>
+    </div>`;
+  }).join('');
+}
+
+function castVote(pollKey, optId, multi = false) {
+  if (pollsAreClosed()) { toast('⏰ Polls are now closed. Voting ended on August 30, 2026.'); return; }
+  if (!state.polls[pollKey]) state.polls[pollKey] = {};
+  const poll = state.polls[pollKey];
+  if (multi) {
+    if (!Array.isArray(state.myVotes[pollKey])) state.myVotes[pollKey] = [];
+    const idx = state.myVotes[pollKey].indexOf(optId);
+    if (idx > -1) {
+      state.myVotes[pollKey].splice(idx, 1);
+      poll[optId] = Math.max(0, (poll[optId] || 0) - 1);
+    } else {
+      state.myVotes[pollKey].push(optId);
+      poll[optId] = (poll[optId] || 0) + 1;
+    }
+  } else {
+    const prev = state.myVotes[pollKey];
+    if (prev && prev !== optId) poll[prev] = Math.max(0, (poll[prev] || 0) - 1);
+    if (prev === optId) { poll[optId] = Math.max(0, (poll[optId] || 0) - 1); state.myVotes[pollKey] = null; }
+    else { poll[optId] = (poll[optId] || 0) + 1; state.myVotes[pollKey] = optId; }
+  }
+  saveState(); renderPolls(); renderDashboard();
+  if (pollKey === 'p3') { document.getElementById('companion-count-section').style.display = state.myVotes.p3 === 'yes' ? 'block' : 'none'; }
+}
+
+function renderPolls() {
+  // Deadline banner
+  const banner = document.getElementById('pollDeadlineBanner');
+  if (banner) {
+    const closed = pollsAreClosed();
+    const days = daysUntilPollClose();
+    if (closed) {
+      banner.innerHTML = `<div style="background:#fde8e6;border:2px solid var(--red);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px;">
+        <span style="font-size:1.4rem;">🔒</span>
+        <div>
+          <div style="font-weight:700;color:var(--red);font-size:0.95rem;">Polls are now CLOSED</div>
+          <div style="font-size:0.82rem;color:#a93226;margin-top:2px;">Voting ended on <strong>August 30, 2026</strong>. Results are final. Thank you for participating!</div>
+        </div>
+      </div>`;
+    } else {
+      const urgentColor = days <= 7 ? 'var(--red)' : days <= 14 ? 'var(--orange)' : 'var(--teal)';
+      const urgentBg   = days <= 7 ? '#fde8e6' : days <= 14 ? '#fef3e2' : '#e8f5f5';
+      banner.innerHTML = `<div style="background:${urgentBg};border:2px solid ${urgentColor};border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px;">
+        <span style="font-size:1.4rem;">${days <= 7 ? '🚨' : '⏰'}</span>
+        <div style="flex:1;">
+          <div style="font-weight:700;color:${urgentColor};font-size:0.95rem;">
+            Polls close on <strong>August 30, 2026</strong> — ${days} day${days!==1?'s':''} remaining!
+          </div>
+          <div style="font-size:0.82rem;color:var(--muted);margin-top:2px;">Cast your votes before the deadline. All 4 polls below must be answered.</div>
+        </div>
+        <div style="text-align:center;background:white;border-radius:8px;padding:8px 14px;border:1.5px solid ${urgentColor};">
+          <div style="font-size:1.6rem;font-weight:800;color:${urgentColor};line-height:1;">${days}</div>
+          <div style="font-size:0.65rem;color:var(--muted);text-transform:uppercase;">days left</div>
+        </div>
+      </div>`;
+    }
+  }
+
+  renderPollOptions('poll1-options', POLL1_OPTIONS, 'p1');
+  document.getElementById('poll1-count').textContent = `${totalVotes(state.polls.p1 || {})} total votes`;
+  const p1v = state.myVotes.p1;
+  document.getElementById('p1-voted-badge').style.display = p1v ? 'inline' : 'none';
+  // Show CLOSED badge on all poll card titles
+  document.querySelectorAll('.poll-closed-badge').forEach(el => el.style.display = pollsAreClosed() ? 'inline' : 'none');
+
+  renderPollOptions('poll2-options', POLL2_OPTIONS, 'p2');
+  document.getElementById('poll2-count').textContent = `${totalVotes(state.polls.p2 || {})} total votes`;
+  document.getElementById('p2-voted-badge').style.display = state.myVotes.p2 ? 'inline' : 'none';
+
+  renderPollOptions('poll3-options', POLL3_OPTIONS, 'p3');
+  document.getElementById('poll3-count').textContent = `${totalVotes(state.polls.p3 || {})} total votes`;
+  document.getElementById('p3-voted-badge').style.display = state.myVotes.p3 ? 'inline' : 'none';
+  document.getElementById('companion-count-section').style.display = state.myVotes.p3 === 'yes' ? 'block' : 'none';
+
+  renderPollOptions('poll3b-options', POLL3B_OPTIONS, 'p3b');
+  document.getElementById('poll3b-count').textContent = `${totalVotes(state.polls.p3b || {})} votes on companion count`;
+
+  // Poll 4 — multi-select activity tags
+  renderActivityPoll('poll4-danang', ACTIVITIES_DANANG, 'p4_danang');
+  renderActivityPoll('poll4-hoian', ACTIVITIES_HOIAN, 'p4_hoian');
+  document.getElementById('p4-voted-badge').style.display = ((state.myVotes.p4_danang||[]).length+(state.myVotes.p4_hoian||[]).length)>0 ? 'inline' : 'none';
+
+  renderPoll4Actions();
+}
+
+function renderActivityPoll(containerId, activities, pollKey) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const myVotes = state.myVotes[pollKey] || [];
+  const poll = state.polls[pollKey] || {};
+  const total = totalVotes(poll);
+  container.innerHTML = activities.map(a => {
+    const voted = myVotes.includes(a.id);
+    const votes = poll[a.id] || 0;
+    return `<div class="activity-tag ${voted?'selected':''}" onclick="castVote('${pollKey}','${a.id}',true)" title="${a.desc} — ${votes} vote${votes!==1?'s':''}">
+      <span class="check">✓</span>${a.label}<span style="font-size:0.7rem;color:var(--muted);margin-left:4px;">(${votes})</span>
+    </div>`;
+  }).join('');
+}
+
+function renderPoll4Actions() {
+  const danangVotes = (state.myVotes.p4_danang || []).length;
+  const hoianVotes = (state.myVotes.p4_hoian || []).length;
+  document.getElementById('poll4-actions').innerHTML = `<div class="text-muted">You selected ${danangVotes} Đà Nẵng + ${hoianVotes} Hội An activities. Click to toggle selection.</div>`;
+}
+
+// ===================== ATTENDANCE =====================
+function submitAttendance() {
+  const name = document.getElementById('att-name').value.trim();
+  if (!name) { toast('Please enter your name.'); return; }
+  const existing = state.attendance.findIndex(a => a.name.toLowerCase() === name.toLowerCase());
+  const entry = {
+    id: existing > -1 ? state.attendance[existing].id : Date.now(),
+    name, status: document.getElementById('att-status').value,
+    companions: parseInt(document.getElementById('att-companions').value) || 0,
+    contact: document.getElementById('att-contact').value,
+    room: document.getElementById('att-room').value,
+    dietary: document.getElementById('att-dietary').value,
+    paid: false, date: new Date().toLocaleDateString()
+  };
+  if (existing > -1) state.attendance[existing] = entry;
+  else state.attendance.push(entry);
+  saveState(); closeModal('attendanceModal'); renderAttendance(); renderDashboard();
+  toast(existing > -1 ? 'Registration updated!' : 'Registered successfully! 🎉');
+}
+
+function renderAttendance() {
+  const tbody = document.getElementById('attendanceBody');
+  const count = document.getElementById('attendanceCount');
+  if (!tbody) return;
+  const totalPax = state.attendance.reduce((sum, a) => {
+    if (a.status !== 'no') return sum + 1 + a.companions;
+    return sum;
+  }, 0);
+  count.textContent = `${state.attendance.length} registered · ${totalPax} total pax`;
+  if (!state.attendance.length) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="icon">🏖️</div>No one registered yet. Be the first!</div></td></tr>';
+    return;
+  }
+  const statusMap = { confirmed:'status-confirmed', maybe:'status-maybe', no:'status-no', pending:'status-pending' };
+  const statusLabel = { confirmed:'✅ Confirmed', maybe:'🤔 Maybe', no:'❌ Not joining', pending:'⏳ Pending' };
+  tbody.innerHTML = state.attendance.map((a, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td><strong>${a.name}</strong><br><span class="text-muted">${a.date||''}</span></td>
+      <td><span class="status-pill ${statusMap[a.status]||'status-pending'}">${statusLabel[a.status]||a.status}</span></td>
+      <td>${a.companions > 0 ? `+${a.companions} companion${a.companions>1?'s':''}` : 'Solo'}</td>
+      <td>${a.contact || '—'}</td>
+      <td>${a.room||'—'}</td>
+      <td>${a.dietary||'None'}</td>
+      <td><span class="status-pill ${a.paid?'status-confirmed':'status-pending'}">${a.paid?'✅ Sent to Emmalyn':'⏳ Pending'}</span></td>
+      ${isAdmin ? `<td>
+        <button class="btn btn-sm ${a.paid?'btn-outline':'btn-green'}" onclick="toggleDeposit(${a.id})">${a.paid?'Unmark':'Mark Sent'}</button>
+        <button class="btn btn-sm btn-red" style="margin-left:4px;" onclick="deleteAttendance(${a.id})">✕</button>
+      </td>` : '<td style="display:none;"></td>'}
+    </tr>
+  `).join('');
+  // Update stats
+  const confirmed = state.attendance.filter(a=>a.status==='confirmed').length;
+  const maybe = state.attendance.filter(a=>a.status==='maybe').length;
+  document.getElementById('stat-confirmed').textContent = confirmed;
+  document.getElementById('stat-maybe').textContent = maybe;
+  document.getElementById('stat-total').textContent = state.attendance.length;
+}
+
+function toggleDeposit(id) {
+  const a = state.attendance.find(x=>x.id===id);
+  if (a) { a.paid = !a.paid; saveState(); renderAttendance(); toast(a.paid?'Marked as sent to Emmalyn ✅':'Marked as pending'); }
+}
+function deleteAttendance(id) {
+  if (!confirm('Remove this person from the list?')) return;
+  state.attendance = state.attendance.filter(a=>a.id!==id);
+  saveState(); renderAttendance(); renderDashboard(); toast('Removed from list.');
+}
+
+// ===================== ITINERARY =====================
+function renderItinerary() {
+  const container = document.getElementById('itineraryDays');
+  if (!container) return;
+  const adminBtn = document.getElementById('adminItineraryBtn');
+  if (adminBtn) adminBtn.style.display = isAdmin ? 'block' : 'none';
+  container.innerHTML = state.itinerary.map((day, i) => `
+    <div class="day-block">
+      <div class="day-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+        <h3>📅 ${day.day}</h3>
+        <span style="font-size:0.8rem;opacity:0.8;">📍 ${day.location} ${isAdmin?`<button class="btn btn-sm btn-red" style="margin-left:8px;" onclick="event.stopPropagation();deleteItinDay(${day.id})">✕</button>`:''}</span>
+      </div>
+      <div class="day-body" style="display:${i===0?'block':'none'}">
+        ${day.morning ? `<div class="time-slot"><div class="time-label">🌅 Morning</div><div class="time-content">${day.morning}</div></div>` : ''}
+        ${day.afternoon ? `<div class="time-slot"><div class="time-label">☀️ Afternoon</div><div class="time-content">${day.afternoon}</div></div>` : ''}
+        ${day.evening ? `<div class="time-slot"><div class="time-label">🌙 Evening</div><div class="time-content">${day.evening}</div></div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function deleteItinDay(id) {
+  if (!isAdmin || !confirm('Delete this day?')) return;
+  state.itinerary = state.itinerary.filter(d=>d.id!==id);
+  saveState(); renderItinerary(); toast('Day removed.');
+}
+
+function submitItineraryDay() {
+  const day = document.getElementById('itin-day').value.trim();
+  if (!day) { toast('Please enter a day label.'); return; }
+  state.itinerary.push({
+    id: Date.now(), day, location: document.getElementById('itin-loc').value,
+    morning: document.getElementById('itin-morning').value,
+    afternoon: document.getElementById('itin-afternoon').value,
+    evening: document.getElementById('itin-evening').value
+  });
+  saveState(); closeModal('addItineraryModal'); renderItinerary(); toast('Day added!');
+  ['itin-day','itin-loc','itin-morning','itin-afternoon','itin-evening'].forEach(id=>document.getElementById(id).value='');
+}
+
+// ===================== ACTIVITIES =====================
+function renderActivities() {
+  const danangEl = document.getElementById('danangActivitiesList');
+  const hoianEl = document.getElementById('hoianActivitiesList');
+  if (!danangEl || !hoianEl) return;
+  const p4d = state.polls.p4_danang || {};
+  const p4h = state.polls.p4_hoian || {};
+  const sortByVotes = (arr, poll) => [...arr].sort((a,b)=>(poll[b.id]||0)-(poll[a.id]||0));
+  danangEl.innerHTML = sortByVotes(ACTIVITIES_DANANG, p4d).map(a => `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-weight:600;font-size:0.88rem;">${a.label}</div>
+        <div class="text-muted">${a.desc}</div>
+      </div>
+      <span class="badge badge-teal" style="min-width:40px;text-align:center;">${p4d[a.id]||0} 🗳️</span>
+    </div>
+  `).join('');
+  hoianEl.innerHTML = sortByVotes(ACTIVITIES_HOIAN, p4h).map(a => `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-weight:600;font-size:0.88rem;">${a.label}</div>
+        <div class="text-muted">${a.desc}</div>
+      </div>
+      <span class="badge badge-gold" style="min-width:40px;text-align:center;">${p4h[a.id]||0} 🗳️</span>
+    </div>
+  `).join('');
+
+  const foodEl = document.getElementById('foodList');
+  if (foodEl) {
+    foodEl.innerHTML = FOOD_ITEMS.map(f => `
+      <div style="background:var(--cream);border-radius:8px;padding:12px;text-align:center;border-left:4px solid var(--gold);">
+        <div style="font-size:1.8rem;">${f.emoji}</div>
+        <div style="font-weight:700;font-size:0.88rem;margin:4px 0;">${f.name}</div>
+        <div class="text-muted">${f.note}</div>
+      </div>
+    `).join('');
+  }
+}
+
+// ===================== FLIGHTS =====================
+function renderFlights() {
+  const container = document.getElementById('flightsList');
+  if (!container) return;
+  const adminBtn = document.getElementById('adminFlightBtn');
+  if (adminBtn) adminBtn.style.display = isAdmin ? 'block' : 'none';
+  if (!state.flights.length) { container.innerHTML = '<div class="empty-state"><div>No flights added yet.</div></div>'; return; }
+  container.innerHTML = state.flights.map(f => `
+    <div class="flight-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <span class="airline-badge">${f.airline}</span>
+          <div class="flight-route" style="margin-top:8px;">
+            <div class="flight-city">${(f.route||'').split('→')[0]?.trim()}</div>
+            <div class="flight-arrow">✈️ ──────→</div>
+            <div class="flight-city">${(f.route||'').split('→')[1]?.trim()}</div>
+          </div>
+        </div>
+        ${isAdmin ? `<button class="btn btn-sm btn-red" onclick="deleteFlight(${f.id})">✕ Remove</button>` : ''}
+      </div>
+      <div class="flight-info">
+        <span>🛫 Dep: <strong>${f.dep}</strong></span>
+        <span>🛬 Arr: <strong>${f.arr}</strong></span>
+        <span>⏱️ ${f.dur}</span>
+        <span>💰 ${f.price}</span>
+      </div>
+      ${f.notes ? `<div class="text-muted" style="margin-top:8px;font-size:0.8rem;">📌 ${f.notes}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function submitFlight() {
+  const f = {
+    id: Date.now(),
+    airline: document.getElementById('fl-airline').value,
+    route: document.getElementById('fl-route').value,
+    dep: document.getElementById('fl-dep').value,
+    arr: document.getElementById('fl-arr').value,
+    dur: document.getElementById('fl-dur').value,
+    price: document.getElementById('fl-price').value,
+    notes: document.getElementById('fl-notes').value
+  };
+  state.flights.push(f);
+  saveState(); closeModal('addFlightModal'); renderFlights(); toast('Flight added!');
+  ['fl-airline','fl-route','fl-dep','fl-arr','fl-dur','fl-price','fl-notes'].forEach(id=>document.getElementById(id).value='');
+}
+function deleteFlight(id) {
+  if (!confirm('Remove this flight?')) return;
+  state.flights = state.flights.filter(f=>f.id!==id);
+  saveState(); renderFlights(); toast('Flight removed.');
+}
+
+// ===================== ANNOUNCEMENTS =====================
+function renderAnnouncements() {
+  const container = document.getElementById('announcementsList');
+  if (!container) return;
+  const adminBtn = document.getElementById('adminAnnouncementBtn');
+  if (adminBtn) adminBtn.style.display = isAdmin ? 'block' : 'none';
+  if (!state.announcements.length) { container.innerHTML = '<div class="empty-state"><div>No announcements yet.</div></div>'; return; }
+  container.innerHTML = [...state.announcements].map(a => `
+    <div class="announcement ${a.type==='urgent'?'urgent':a.type==='info'?'info':''}">
+      <div class="announcement-title">${a.title}</div>
+      <div class="announcement-meta">📅 ${a.date}${isAdmin?` · <a href="#" onclick="deleteAnn(${a.id});return false;" style="color:var(--red);">Delete</a>`:''}</div>
+      <div class="announcement-body">${a.body}</div>
+    </div>
+  `).join('');
+}
+
+function submitAnnouncement() {
+  const title = document.getElementById('ann-title').value.trim();
+  const body = document.getElementById('ann-body').value.trim();
+  if (!title || !body) { toast('Please fill title and message.'); return; }
+  state.announcements.push({
+    id: Date.now(), title, type: document.getElementById('ann-type').value, body,
+    date: new Date().toLocaleDateString()
+  });
+  saveState(); closeModal('addAnnouncementModal'); renderAnnouncements(); renderDashboard(); toast('Announcement posted!');
+  document.getElementById('ann-title').value = ''; document.getElementById('ann-body').value = '';
+}
+function deleteAnn(id) {
+  if (!isAdmin || !confirm('Delete this announcement?')) return;
+  state.announcements = state.announcements.filter(a=>a.id!==id);
+  saveState(); renderAnnouncements(); renderDashboard(); toast('Deleted.');
+}
+
+// ===================== BOOKINGS =====================
+function submitBooking() {
+  const name = document.getElementById('bk-name').value.trim();
+  const passport = document.getElementById('bk-passport').value.trim();
+  if (!name || !passport) { toast('Name and passport number are required.'); return; }
+  const entry = {
+    id: Date.now(), name, passport,
+    expiry: document.getElementById('bk-expiry').value,
+    dob: document.getElementById('bk-dob').value,
+    nationality: document.getElementById('bk-nationality').value,
+    flight: document.getElementById('bk-flight').value,
+    ref: document.getElementById('bk-ref').value,
+    notes: document.getElementById('bk-notes').value,
+    ecName: document.getElementById('bk-ec-name').value,
+    ecNum: document.getElementById('bk-ec-num').value,
+    submitted: new Date().toLocaleString()
+  };
+  const existing = state.bookings.findIndex(b => b.name.toLowerCase() === name.toLowerCase());
+  if (existing > -1) state.bookings[existing] = entry;
+  else state.bookings.push(entry);
+  saveState(); closeModal('bookingFormModal'); renderBookings(); toast('Booking details submitted securely! ✅');
+}
+
+function renderBookings() {
+  const adminSection = document.getElementById('adminBookingsSection');
+  const memberStatus = document.getElementById('memberBookingStatus');
+  if (adminSection) adminSection.style.display = isAdmin ? 'block' : 'none';
+  if (!isAdmin) {
+    if (memberStatus) memberStatus.innerHTML = `<div class="info-box"><h4>📝 How this works</h4><ul><li>Click "Submit My Booking Details" above to fill in your passport & flight info</li><li>Your details are stored locally and only visible to the admin</li><li>${state.bookings.length} member(s) have submitted details so far</li></ul></div>`;
+    return;
+  }
+  const container = document.getElementById('bookingsList');
+  if (!container) return;
+  if (!state.bookings.length) { container.innerHTML = '<div class="empty-state"><div>No bookings submitted yet.</div></div>'; return; }
+  container.innerHTML = state.bookings.map(b => `
+    <div class="booking-entry">
+      <div class="booking-entry-header">
+        <div class="booking-name">👤 ${b.name}</div>
+        <div style="display:flex;gap:6px;">
+          <span class="badge badge-teal">${b.submitted}</span>
+          ${isAdmin?`<button class="btn btn-sm btn-red" onclick="deleteBooking(${b.id})">✕</button>`:''}
+        </div>
+      </div>
+      <div class="booking-details">
+        <div>🛂 Passport: <strong>${b.passport}</strong></div>
+        <div>📅 Expiry: <strong>${b.expiry||'—'}</strong></div>
+        <div>🎂 DOB: <strong>${b.dob||'—'}</strong></div>
+        <div>🌍 Nationality: <strong>${b.nationality||'—'}</strong></div>
+        <div>✈️ Flight: <strong>${b.flight||'—'}</strong></div>
+        <div>📋 Ref: <strong>${b.ref||'—'}</strong></div>
+        <div>🚨 Emergency Contact: <strong>${b.ecName||'—'} ${b.ecNum?'('+b.ecNum+')':''}</strong></div>
+        ${b.notes?`<div style="grid-column:1/-1;">📝 Notes: ${b.notes}</div>`:''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function deleteBooking(id) {
+  if (!confirm('Delete this booking entry?')) return;
+  state.bookings = state.bookings.filter(b=>b.id!==id);
+  saveState(); renderBookings(); toast('Deleted.');
+}
+
+// ===================== BUDGET =====================
+function renderBudget() {
+  const container = document.getElementById('budgetItems');
+  if (!container) return;
+  if (!state.budgetValues) state.budgetValues = {};
+  BUDGET_ITEMS.forEach(item => {
+    if (state.budgetValues[item.id] === undefined) state.budgetValues[item.id] = item.default;
+  });
+  container.innerHTML = BUDGET_ITEMS.map(item => `
+    <div class="budget-item">
+      <div class="budget-label">${item.label}</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        ${item.isCount ? '' : '<span style="font-size:0.85rem;color:var(--muted);">₱</span>'}
+        <input type="number" value="${state.budgetValues[item.id]}" min="${item.min}" max="${item.max}" step="${item.step}"
+          style="width:90px;padding:4px 8px;border:1.5px solid var(--border);border-radius:6px;font-size:0.85rem;text-align:right;"
+          onchange="updateBudget('${item.id}',this.value)">
+        ${item.isCount ? '<span class="text-muted">nights</span>' : ''}
+      </div>
+    </div>
+  `).join('');
+  calcBudget();
+  renderSavingsTracker();
+}
+
+function updateBudget(id, val) {
+  state.budgetValues[id] = parseFloat(val) || 0;
+  saveState(); calcBudget();
+}
+
+function calcBudget() {
+  const v = state.budgetValues;
+  const hotel = (v.hotel||0) * (v.nights||0);
+  const food = (v.food||0) * (v.nights||0);
+  const total = (v.flight||0) + hotel + food + (v.activities||0) + (v.shopping||0) + (v.transport||0) + (v.misc||0);
+  document.getElementById('budgetTotalAmount').textContent = '₱' + total.toLocaleString();
+}
+
+function saveSavingsTarget(val) {
+  state.savingsTarget = parseFloat(val) || 0;
+  saveState(); renderSavingsTracker();
+}
+
+function renderSavingsTracker() {
+  // Sync target input with budget estimator if not manually set
+  const targetInput = document.getElementById('savingsTarget');
+  if (!state.savingsTarget) {
+    const v = state.budgetValues || {};
+    const hotel = (v.hotel||0) * (v.nights||0);
+    const food  = (v.food||0)  * (v.nights||0);
+    const calc  = (v.flight||0) + hotel + food + (v.activities||0) + (v.shopping||0) + (v.transport||0) + (v.misc||0);
+    if (targetInput && !targetInput.value) targetInput.value = calc || '';
+    state.savingsTarget = calc || 0;
+  } else {
+    if (targetInput) targetInput.value = state.savingsTarget;
+  }
+
+  const target = state.savingsTarget || 0;
+  if (!state.savings) state.savings = {};
+
+  // Admin button
+  const adminBtn = document.getElementById('adminAddPaymentBtn');
+  if (adminBtn) adminBtn.style.display = isAdmin ? 'block' : 'none';
+
+  // Populate member dropdown in modal
+  const sel = document.getElementById('pay-member');
+  if (sel) {
+    const going = state.attendance.filter(a=>a.status!=='no');
+    sel.innerHTML = going.length
+      ? going.map(a=>`<option value="${a.id}">${a.name}</option>`).join('')
+      : '<option value="">— Register members first —</option>';
+  }
+
+  // Set today as default date in modal
+  const payDate = document.getElementById('pay-date');
+  if (payDate && !payDate.value) payDate.value = new Date().toISOString().split('T')[0];
+  const payMonth = document.getElementById('pay-month');
+  if (payMonth && !payMonth.value) payMonth.value = new Date().toISOString().slice(0,7);
+
+  const going = state.attendance.filter(a=>a.status!=='no');
+  const container = document.getElementById('savingsTrackerList');
+  if (!container) return;
+
+  if (!going.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">👥</div>Register members in "Who\'s Coming" first.</div>';
+    updateSavingsSummary(0, 0, 0);
+    return;
+  }
+
+  let grandTotal = 0;
+  let grandTarget = target * going.length;
+
+  container.innerHTML = going.map(a => {
+    const payments = (state.savings[a.id] || []).slice().sort((x,y)=>x.month.localeCompare(y.month));
+    const totalPaid = payments.reduce((sum, p) => sum + (p.amount||0), 0);
+    grandTotal += totalPaid;
+    const pct = target > 0 ? Math.min(100, Math.round((totalPaid/target)*100)) : 0;
+    const remaining = Math.max(0, target - totalPaid);
+    const barColor = pct >= 100 ? 'var(--green)' : pct >= 50 ? 'var(--gold)' : 'var(--teal)';
+
+    return `
+    <div style="border:1.5px solid var(--border);border-radius:10px;margin-bottom:12px;overflow:hidden;">
+      <!-- Member header -->
+      <div style="background:#f7f7f7;padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;"
+           onclick="toggleSavingsRow(${a.id})">
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <strong style="font-size:0.92rem;">${a.name}</strong>
+            <span class="status-pill ${a.status==='confirmed'?'status-confirmed':'status-maybe'}" style="font-size:0.7rem;">
+              ${a.status==='confirmed'?'✅ Confirmed':'🤔 Maybe'}
+            </span>
+            ${pct>=100 ? '<span class="badge" style="background:#d5f5e3;color:#1e8449;">🎉 Fully Paid</span>' : ''}
+          </div>
+          <!-- Progress bar -->
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="flex:1;height:10px;background:#e0e0e0;border-radius:5px;overflow:hidden;">
+              <div style="width:${pct}%;height:100%;background:${barColor};border-radius:5px;transition:width 0.5s;"></div>
+            </div>
+            <span style="font-size:0.78rem;font-weight:700;color:${barColor};min-width:36px;">${pct}%</span>
+          </div>
+          <div style="display:flex;gap:16px;margin-top:5px;font-size:0.78rem;color:var(--muted);">
+            <span>💰 Paid: <strong style="color:var(--darkteal);">₱${totalPaid.toLocaleString()}</strong></span>
+            <span>🎯 Target: <strong>₱${target.toLocaleString()}</strong></span>
+            <span>⏳ Remaining: <strong style="color:${remaining>0?'var(--red)':'var(--green)}'};">₱${remaining.toLocaleString()}</strong></span>
+            <span>📝 ${payments.length} payment${payments.length!==1?'s':''}</span>
+          </div>
+        </div>
+        <span style="color:var(--muted);font-size:0.8rem;" id="savings-toggle-${a.id}">▼ Details</span>
+      </div>
+
+      <!-- Payment log (collapsible) -->
+      <div id="savings-row-${a.id}" style="display:none;padding:12px 16px;background:white;">
+        ${isAdmin ? `<button class="btn btn-sm btn-primary" style="margin-bottom:10px;"
+          onclick="event.stopPropagation();prefillPayment(${a.id})">➕ Add Payment for ${a.name}</button>` : ''}
+        ${payments.length === 0
+          ? '<div class="text-muted" style="padding:8px 0;">No payments recorded yet.</div>'
+          : `<table style="width:100%;border-collapse:collapse;font-size:0.83rem;">
+              <thead>
+                <tr style="background:var(--darkteal);color:white;">
+                  <th style="padding:7px 10px;text-align:left;">Month</th>
+                  <th style="padding:7px 10px;text-align:right;">Amount</th>
+                  <th style="padding:7px 10px;text-align:left;">Date Received</th>
+                  <th style="padding:7px 10px;text-align:left;">Note</th>
+                  ${isAdmin?'<th style="padding:7px 10px;"></th>':''}
+                </tr>
+              </thead>
+              <tbody>
+                ${payments.map(p=>`
+                  <tr style="border-bottom:1px solid var(--border);">
+                    <td style="padding:8px 10px;">${formatMonth(p.month)}</td>
+                    <td style="padding:8px 10px;text-align:right;font-weight:700;color:var(--darkteal);">₱${(p.amount||0).toLocaleString()}</td>
+                    <td style="padding:8px 10px;color:var(--muted);">${p.date||'—'}</td>
+                    <td style="padding:8px 10px;color:var(--muted);">${p.note||'—'}</td>
+                    ${isAdmin?`<td style="padding:8px 10px;"><button class="btn btn-sm btn-red" onclick="deletePayment(${a.id},'${p.id}')">✕</button></td>`:''}
+                  </tr>`).join('')}
+              </tbody>
+              <tfoot>
+                <tr style="background:#f7f7f7;font-weight:700;">
+                  <td style="padding:8px 10px;">Total</td>
+                  <td style="padding:8px 10px;text-align:right;color:var(--darkteal);">₱${totalPaid.toLocaleString()}</td>
+                  <td colspan="${isAdmin?3:2}"></td>
+                </tr>
+              </tfoot>
+            </table>`}
+      </div>
+    </div>`;
+  }).join('');
+
+  updateSavingsSummary(grandTotal, grandTarget, going.length);
+}
+
+function formatMonth(m) {
+  if (!m) return '—';
+  const [y, mo] = m.split('-');
+  const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${names[parseInt(mo,10)-1]} ${y}`;
+}
+
+function updateSavingsSummary(grandTotal, grandTarget, count) {
+  const bar = document.getElementById('savingsSummaryBar');
+  if (!bar) return;
+  const pct = grandTarget > 0 ? Math.min(100, Math.round((grandTotal/grandTarget)*100)) : 0;
+  bar.innerHTML = `
+    <div style="background:var(--cream);border-radius:8px;padding:10px 14px;border-left:4px solid var(--gold);">
+      <div style="font-size:0.78rem;font-weight:700;color:var(--muted);margin-bottom:6px;">📊 GROUP SAVINGS OVERVIEW (${count} members)</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:0.85rem;margin-bottom:8px;">
+        <span>💰 Total Collected: <strong style="color:var(--darkteal);">₱${grandTotal.toLocaleString()}</strong></span>
+        <span>🎯 Group Target: <strong>₱${grandTarget.toLocaleString()}</strong></span>
+        <span>📈 Progress: <strong style="color:${pct>=100?'var(--green)':'var(--orange)'};">${pct}%</strong></span>
+      </div>
+      <div style="height:12px;background:#e0e0e0;border-radius:6px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:6px;transition:width 0.5s;"></div>
+      </div>
+    </div>`;
+}
+
+function toggleSavingsRow(id) {
+  const row = document.getElementById(`savings-row-${id}`);
+  const tog = document.getElementById(`savings-toggle-${id}`);
+  if (!row) return;
+  const open = row.style.display === 'block';
+  row.style.display = open ? 'none' : 'block';
+  if (tog) tog.textContent = open ? '▼ Details' : '▲ Hide';
+}
+
+function prefillPayment(attendanceId) {
+  const sel = document.getElementById('pay-member');
+  if (sel) sel.value = attendanceId;
+  openModal('addPaymentModal');
+}
+
+function submitPayment() {
+  const memberId = parseInt(document.getElementById('pay-member').value);
+  const amount   = parseFloat(document.getElementById('pay-amount').value) || 0;
+  const month    = document.getElementById('pay-month').value;
+  const date     = document.getElementById('pay-date').value;
+  const note     = document.getElementById('pay-note').value.trim();
+  if (!memberId || !amount || !month) { toast('Please fill in member, amount, and month.'); return; }
+  if (!state.savings) state.savings = {};
+  if (!state.savings[memberId]) state.savings[memberId] = [];
+  state.savings[memberId].push({ id: Date.now(), amount, month, date, note });
+  saveState();
+  closeModal('addPaymentModal');
+  document.getElementById('pay-amount').value = '';
+  renderSavingsTracker();
+  const member = state.attendance.find(a=>a.id===memberId);
+  toast(`₱${amount.toLocaleString()} recorded for ${member?.name||'member'} ✅`);
+}
+
+function deletePayment(attendanceId, paymentId) {
+  if (!isAdmin || !confirm('Delete this payment record?')) return;
+  paymentId = parseInt(paymentId);
+  if (state.savings[attendanceId]) {
+    state.savings[attendanceId] = state.savings[attendanceId].filter(p=>p.id!==paymentId);
+  }
+  saveState(); renderSavingsTracker(); toast('Payment record deleted.');
+}
+
+// ===================== ESSENTIALS =====================
+function renderEssentials() {
+  const container = document.getElementById('packingList');
+  if (!container) return;
+  container.innerHTML = PACKING_LIST.map(cat => `
+    <div style="margin-bottom:12px;">
+      <div style="font-weight:700;font-size:0.88rem;color:var(--darkteal);margin-bottom:6px;">${cat.cat}</div>
+      ${cat.items.map(item => {
+        const key = cat.cat + item;
+        const checked = state.packingChecked[key] || false;
+        return `<div class="pack-item ${checked?'checked':''}">
+          <input type="checkbox" ${checked?'checked':''} onchange="togglePack('${encodeURIComponent(key)}',this.checked)">
+          ${item}
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+}
+
+function togglePack(key, val) {
+  state.packingChecked[decodeURIComponent(key)] = val;
+  saveState();
+  const allItems = document.querySelectorAll('.pack-item');
+  allItems.forEach(el => {
+    if (el.querySelector('input').checked) el.classList.add('checked');
+    else el.classList.remove('checked');
+  });
+}
+function resetPacking() {
+  state.packingChecked = {}; saveState(); renderEssentials(); toast('Checklist reset!');
+}
+
+// ===================== DASHBOARD =====================
+function renderDashboard() {
+  const confirmed = state.attendance.filter(a=>a.status==='confirmed').length;
+  const maybe = state.attendance.filter(a=>a.status==='maybe').length;
+  document.getElementById('stat-confirmed').textContent = confirmed;
+  document.getElementById('stat-maybe').textContent = maybe;
+  document.getElementById('stat-total').textContent = state.attendance.length;
+
+  // Recent announcements
+  const dashAnn = document.getElementById('dashAnnouncements');
+  if (dashAnn) {
+    const recent = [...state.announcements].slice(0,3);
+    dashAnn.innerHTML = recent.length ? recent.map(a => `
+      <div class="announcement ${a.type==='urgent'?'urgent':a.type==='info'?'info':''}">
+        <div class="announcement-title">${a.title}</div>
+        <div class="announcement-meta">${a.date}</div>
+        <div class="announcement-body">${a.body.substring(0,120)}${a.body.length>120?'...':''}</div>
+      </div>`).join('') : '<div class="empty-state" style="padding:16px;">No announcements yet.</div>';
+  }
+
+  // Poll snapshot
+  const snap = document.getElementById('dashPollSnapshot');
+  if (snap) {
+    const p1total = totalVotes(state.polls.p1||{});
+    const p1top = p1total > 0 ? Object.entries(state.polls.p1||{}).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>`${POLL1_OPTIONS.find(o=>o.id===k)?.label||k}: ${v}`).join(' · ') : 'No votes yet';
+    const p2total = totalVotes(state.polls.p2||{});
+    const joining = state.polls.p2?.yes || 0;
+    snap.innerHTML = `
+      <div style="padding:12px;background:var(--cream);border-radius:8px;">
+        <div style="font-weight:700;font-size:0.85rem;color:var(--darkteal);margin-bottom:8px;">📅 Poll 1: Trip Month</div>
+        <div class="text-muted">${p1total} votes · Top: ${p1top}</div>
+      </div>
+      <div style="padding:12px;background:var(--cream);border-radius:8px;">
+        <div style="font-weight:700;font-size:0.85rem;color:var(--darkteal);margin-bottom:8px;">✋ Poll 2: Joining</div>
+        <div class="text-muted">${p2total} votes · ✅ Going: ${joining} · 🤔 Maybe: ${state.polls.p2?.maybe||0}</div>
+      </div>`;
+  }
+}
+
+// ===================== TOAST =====================
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ===================== GOOGLE SHEETS SYNC =====================
+let SCRIPT_URL = localStorage.getItem('vn-gs-url') || '';
+let syncTimer = null;
+let isSyncing = false;
+
+const APPS_SCRIPT_CODE = `// Vietnam Trip Planner — Google Apps Script Backend
+// Paste this entire code into Extensions → Apps Script, then Deploy as Web App.
+
+const SHEET_NAME = 'TripData';
+
+function doGet(e) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) { sheet = ss.insertSheet(SHEET_NAME); sheet.getRange('A1').setValue('{}'); }
+  const data = sheet.getRange('A1').getValue() || '{}';
+  return ContentService.createTextOutput(data).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) sheet = ss.insertSheet(SHEET_NAME);
+  try {
+    const incoming = JSON.parse(e.postData.contents);
+    // Timestamp the save
+    incoming._lastSaved = new Date().toISOString();
+    sheet.getRange('A1').setValue(JSON.stringify(incoming));
+    // Also write a human-readable log row
+    const log = ss.getSheetByName('SaveLog') || ss.insertSheet('SaveLog');
+    if (log.getLastRow() === 0) log.appendRow(['Timestamp', 'Saved By', 'Members', 'Poll1 Votes']);
+    log.appendRow([
+      new Date().toLocaleString(),
+      incoming._savedBy || 'Member',
+      (incoming.attendance || []).length,
+      Object.values(incoming.polls?.p1 || {}).reduce((a,b)=>a+b,0)
+    ]);
+    return ContentService.createTextOutput(JSON.stringify({ok:true})).setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({ok:false,error:err.message})).setMimeType(ContentService.MimeType.JSON);
+  }
+}`;
+
+function showSyncStatus(status, msg) {
+  const el = document.getElementById('syncStatus');
+  if (!el) return;
+  const map = {
+    ok:      { cls:'ok',      icon:'🟢', text:'Synced' },
+    saving:  { cls:'saving',  icon:'🔄', text:'Saving…', spin:true },
+    loading: { cls:'loading', icon:'🔄', text:'Loading…', spin:true },
+    error:   { cls:'error',   icon:'🔴', text:'Sync error — click to retry' },
+    none:    { cls:'none',    icon:'⚪', text:'Not connected' }
+  };
+  const s = map[status] || map.none;
+  el.className = `sync-dot ${s.cls}`;
+  el.innerHTML = `${s.spin ? `<span class="spin">${s.icon}</span>` : s.icon} ${msg || s.text}`;
+}
+
+function getSharedState() {
+  // Fields shared across all users (saved to Sheets)
+  const { myVotes, packingChecked, ...shared } = state;
+  shared._savedBy = isAdmin ? 'Admin' : 'Member';
+  return shared;
+}
+
+function mergeRemoteState(remote) {
+  // Keep device-local fields, use remote for everything else
+  const localVotes   = state.myVotes       || {};
+  const localPacking = state.packingChecked || {};
+  state = { ...remote, myVotes: localVotes, packingChecked: localPacking };
+  localStorage.setItem('vn-trip-planner-v2', JSON.stringify(state));
+}
+
+async function pullFromSheets() {
+  if (!SCRIPT_URL) { showSyncStatus('none'); return; }
+  showSyncStatus('loading');
+  try {
+    const res = await fetch(SCRIPT_URL + '?t=' + Date.now(), { cache: 'no-cache' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const remote = await res.json();
+    if (remote && typeof remote === 'object' && !remote.error) {
+      mergeRemoteState(remote);
+      renderAll();
+      showSyncStatus('ok');
+      localStorage.setItem('vn-last-sync', new Date().toISOString());
+    } else {
+      showSyncStatus('ok', '🟢 Sheet empty — data initialized');
+    }
+  } catch(e) {
+    console.warn('Pull failed:', e.message);
+    showSyncStatus('error', '🔴 Could not reach sheet');
+  }
+}
+
+async function pushToSheets() {
+  if (!SCRIPT_URL || isSyncing) return;
+  isSyncing = true;
+  showSyncStatus('saving');
+  try {
+    // no-cors: fire-and-forget POST (Apps Script redirect issue workaround)
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(getSharedState())
+    });
+    showSyncStatus('ok');
+    localStorage.setItem('vn-last-sync', new Date().toISOString());
+  } catch(e) {
+    console.warn('Push failed:', e.message);
+    showSyncStatus('error');
+  }
+  isSyncing = false;
+}
+
+// Override saveState to also schedule a push
+const _origSaveState = saveState;
+function saveState() {
+  localStorage.setItem('vn-trip-planner-v2', JSON.stringify(state));
+  if (SCRIPT_URL) {
+    showSyncStatus('saving', '🔄 Queued…');
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(pushToSheets, 1800);
+  }
+}
+
+function manualRefresh() {
+  if (!SCRIPT_URL) { openModal('sheetsSetupModal'); return; }
+  pullFromSheets().then(() => toast('Data refreshed from Google Sheets ✅'));
+}
+
+function saveScriptUrl() {
+  const url = document.getElementById('scriptUrlInput').value.trim();
+  if (!url || !url.startsWith('https://script.google.com')) {
+    document.getElementById('sheetsConnectStatus').innerHTML =
+      '<span style="color:var(--red);">⚠️ Please paste a valid Google Apps Script URL (starts with https://script.google.com)</span>';
+    return;
+  }
+  SCRIPT_URL = url;
+  localStorage.setItem('vn-gs-url', url);
+  document.getElementById('sheetsConnectStatus').innerHTML =
+    '<span style="color:var(--green);">✅ Connected! Pulling data from your Sheet now…</span>';
+  setTimeout(() => {
+    closeModal('sheetsSetupModal');
+    pullFromSheets().then(() => toast('Connected to Google Sheets! 🎉'));
+  }, 1200);
+}
+
+function disconnectSheets() {
+  if (!confirm('Disconnect Google Sheets? Your local data will be kept.')) return;
+  SCRIPT_URL = '';
+  localStorage.removeItem('vn-gs-url');
+  showSyncStatus('none');
+  closeModal('sheetsSetupModal');
+  toast('Disconnected from Google Sheets.');
+}
+
+function copyAppsScript() {
+  navigator.clipboard.writeText(APPS_SCRIPT_CODE)
+    .then(() => toast('Apps Script code copied! ✅'))
+    .catch(() => toast('Select and copy the code manually.'));
+}
+
+function renderAll() {
+  updateCountdown();
+  renderDashboard();
+  renderPolls();
+  renderAttendance();
+  renderItinerary();
+  renderActivities();
+  renderFlights();
+  renderAnnouncements();
+  renderBookings();
+  renderBudget();
+  renderEssentials();
+}
+
+// ===================== INIT =====================
+async function init() {
+  // Pre-fill setup modal fields
+  if (SCRIPT_URL) document.getElementById('scriptUrlInput').value = SCRIPT_URL;
+  document.getElementById('appsScriptCode').textContent = APPS_SCRIPT_CODE;
+
+  updateCountdown();
+  renderDashboard();
+  renderPolls();
+  renderAttendance();
+  renderItinerary();
+  renderActivities();
+  renderFlights();
+  renderAnnouncements();
+  renderBookings();
+  renderBudget();
+  renderEssentials();
+
+  if (state.tripDate) {
+    document.getElementById('tripDateInput').value = state.tripDate;
+  }
+
+  // Load from Google Sheets (replaces localStorage with live data)
+  if (SCRIPT_URL) {
+    await pullFromSheets();
+  } else {
+    showSyncStatus('none');
+  }
+
+  // Auto-refresh every 60 seconds when connected
+  setInterval(() => { if (SCRIPT_URL) pullFromSheets(); }, 60000);
+}
+
+init();
+</script>
+</body>
+</html>
