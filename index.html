@@ -2168,7 +2168,23 @@ function mergeRemoteState(remote) {
   const localVotes         = state.myVotes       || {};
   const localPacking       = state.packingChecked || {};
   const localAnnouncements = getDefaultAnnouncements();
-  state = { ...remote, myVotes: localVotes, packingChecked: localPacking, announcements: localAnnouncements };
+
+  // Merge poll counts: take MAX of local vs remote so votes never go backwards
+  const localPolls  = state.polls  || {};
+  const remotePolls = (remote.polls) || {};
+  const mergedPolls = {};
+  const pollKeys = new Set([...Object.keys(localPolls), ...Object.keys(remotePolls)]);
+  for (const pk of pollKeys) {
+    const lp = localPolls[pk]  || {};
+    const rp = remotePolls[pk] || {};
+    mergedPolls[pk] = {};
+    const optKeys = new Set([...Object.keys(lp), ...Object.keys(rp)]);
+    for (const ok of optKeys) {
+      mergedPolls[pk][ok] = Math.max(lp[ok] || 0, rp[ok] || 0);
+    }
+  }
+
+  state = { ...remote, myVotes: localVotes, packingChecked: localPacking, announcements: localAnnouncements, polls: mergedPolls };
   localStorage.setItem('vn-trip-planner-v2', JSON.stringify(state));
 }
 
