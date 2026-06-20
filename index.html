@@ -2163,6 +2163,28 @@ function getSharedState() {
   return shared;
 }
 
+function reconcileMyVotes() {
+  // Ensure the current user's own vote is always counted in the tallies.
+  const my = state.myVotes || {};
+  if (!state.polls) state.polls = {};
+  ['p1','p2','p3','p3b'].forEach(pk => {
+    if (my[pk] && typeof my[pk] === 'string') {
+      if (!state.polls[pk]) state.polls[pk] = {};
+      if (!state.polls[pk][my[pk]] || state.polls[pk][my[pk]] < 1)
+        state.polls[pk][my[pk]] = 1;
+    }
+  });
+  ['p4_danang','p4_hoian'].forEach(pk => {
+    if (Array.isArray(my[pk]) && my[pk].length) {
+      if (!state.polls[pk]) state.polls[pk] = {};
+      my[pk].forEach(optId => {
+        if (!state.polls[pk][optId] || state.polls[pk][optId] < 1)
+          state.polls[pk][optId] = 1;
+      });
+    }
+  });
+}
+
 function mergeRemoteState(remote) {
   // Keep device-local fields and HTML-managed announcements
   const localVotes         = state.myVotes       || {};
@@ -2185,6 +2207,7 @@ function mergeRemoteState(remote) {
   }
 
   state = { ...remote, myVotes: localVotes, packingChecked: localPacking, announcements: localAnnouncements, polls: mergedPolls };
+  reconcileMyVotes();
   localStorage.setItem('vn-trip-planner-v2', JSON.stringify(state));
 }
 
@@ -2297,6 +2320,7 @@ function renderAll() {
 
 // ===================== INIT =====================
 async function init() {
+  reconcileMyVotes();
   // Pre-fill setup modal fields
   if (SCRIPT_URL) document.getElementById('scriptUrlInput').value = SCRIPT_URL;
   document.getElementById('appsScriptCode').textContent = APPS_SCRIPT_CODE;
