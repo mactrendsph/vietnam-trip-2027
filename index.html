@@ -2063,17 +2063,31 @@ function renderDashboard() {
   const snap = document.getElementById('dashPollSnapshot');
   if (snap) {
     const p1total = totalVotes(state.polls.p1||{});
-    const p1top = p1total > 0 ? Object.entries(state.polls.p1||{}).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>`${POLL1_OPTIONS.find(o=>o.id===k)?.label||k}: ${v}`).join(' · ') : 'No votes yet';
+    const p1top = p1total > 0 ? Object.entries(state.polls.p1||{}).sort((a,b)=>b[1]-a[1]).slice(0,1).map(([k,v])=>`${POLL1_OPTIONS.find(o=>o.id===k)?.label||k} (${v})`).join('') : 'No votes yet';
     const p2total = totalVotes(state.polls.p2||{});
-    const joining = state.polls.p2?.yes || 0;
+    const p3total = totalVotes(state.polls.p3||{});
+    const p3yes = state.polls.p3?.yes || 0;
+    const p4dTotal = totalVotes(state.polls.p4_danang||{});
+    const p4hTotal = totalVotes(state.polls.p4_hoian||{});
+    const p4top = (p4dTotal + p4hTotal) > 0
+      ? [...Object.entries(state.polls.p4_danang||{}), ...Object.entries(state.polls.p4_hoian||{})].sort((a,b)=>b[1]-a[1]).slice(0,2).map(([k,v])=>`${k}: ${v}`).join(' · ')
+      : 'No votes yet';
     snap.innerHTML = `
       <div style="padding:12px;background:var(--cream);border-radius:8px;">
-        <div style="font-weight:700;font-size:0.85rem;color:var(--darkteal);margin-bottom:8px;">📅 Poll 1: Trip Month</div>
-        <div class="text-muted">${p1total} votes · Top: ${p1top}</div>
+        <div style="font-weight:700;font-size:0.85rem;color:var(--darkteal);margin-bottom:6px;">📅 Poll 1: Trip Month</div>
+        <div class="text-muted">${p1total} votes · Leading: ${p1top}</div>
       </div>
       <div style="padding:12px;background:var(--cream);border-radius:8px;">
-        <div style="font-weight:700;font-size:0.85rem;color:var(--darkteal);margin-bottom:8px;">✋ Poll 2: Joining</div>
-        <div class="text-muted">${p2total} votes · ✅ Going: ${joining} · 🤔 Maybe: ${state.polls.p2?.maybe||0}</div>
+        <div style="font-weight:700;font-size:0.85rem;color:var(--darkteal);margin-bottom:6px;">✋ Poll 2: Joining</div>
+        <div class="text-muted">${p2total} votes · ✅ Going: ${state.polls.p2?.yes||0} · 🤔 Maybe: ${state.polls.p2?.maybe||0}</div>
+      </div>
+      <div style="padding:12px;background:var(--cream);border-radius:8px;">
+        <div style="font-weight:700;font-size:0.85rem;color:var(--darkteal);margin-bottom:6px;">👨‍👩‍👧 Poll 3: Companions</div>
+        <div class="text-muted">${p3total} votes · With companion: ${p3yes}</div>
+      </div>
+      <div style="padding:12px;background:var(--cream);border-radius:8px;">
+        <div style="font-weight:700;font-size:0.85rem;color:var(--darkteal);margin-bottom:6px;">🎯 Poll 4: Activities</div>
+        <div class="text-muted">${p4dTotal + p4hTotal} votes · Top: ${p4top}</div>
       </div>`;
   }
 }
@@ -2151,10 +2165,11 @@ function getSharedState() {
 }
 
 function mergeRemoteState(remote) {
-  // Keep device-local fields, use remote for everything else
-  const localVotes   = state.myVotes       || {};
-  const localPacking = state.packingChecked || {};
-  state = { ...remote, myVotes: localVotes, packingChecked: localPacking };
+  // Keep device-local fields and HTML-managed content; use remote for shared data
+  const localVotes         = state.myVotes       || {};
+  const localPacking       = state.packingChecked || {};
+  const localAnnouncements = state.announcements  || [];
+  state = { ...remote, myVotes: localVotes, packingChecked: localPacking, announcements: localAnnouncements };
   localStorage.setItem('vn-trip-planner-v2', JSON.stringify(state));
 }
 
