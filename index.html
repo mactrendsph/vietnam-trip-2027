@@ -1859,14 +1859,17 @@ function renderSavingsTracker() {
   }
 
   let grandTotal = 0;
-  let grandTarget = target * going.length;
+  let grandTarget = 0;
 
   container.innerHTML = going.map(a => {
+    const pax = 1 + (a.companions || 0);
+    const memberTarget = target * pax;
+    grandTarget += memberTarget;
     const payments = (state.savings[a.id] || []).slice().sort((x,y)=>x.month.localeCompare(y.month));
     const totalPaid = payments.reduce((sum, p) => sum + (p.amount||0), 0);
     grandTotal += totalPaid;
-    const pct = target > 0 ? Math.min(100, Math.round((totalPaid/target)*100)) : 0;
-    const remaining = Math.max(0, target - totalPaid);
+    const pct = memberTarget > 0 ? Math.min(100, Math.round((totalPaid/memberTarget)*100)) : 0;
+    const remaining = Math.max(0, memberTarget - totalPaid);
     const barColor = pct >= 100 ? 'var(--green)' : pct >= 50 ? 'var(--gold)' : 'var(--teal)';
 
     return `
@@ -1891,7 +1894,7 @@ function renderSavingsTracker() {
           </div>
           <div style="display:flex;gap:16px;margin-top:5px;font-size:0.78rem;color:var(--muted);">
             <span>💰 Paid: <strong style="color:var(--darkteal);">₱${totalPaid.toLocaleString()}</strong></span>
-            <span>🎯 Target: <strong>₱${target.toLocaleString()}</strong></span>
+            <span>🎯 Target: <strong>₱${memberTarget.toLocaleString()}</strong>${pax > 1 ? ` <span style="font-size:0.72rem;color:var(--muted);">(${pax} pax)</span>` : ''}</span>
             <span>⏳ Remaining: <strong style="color:${remaining>0?'var(--red)':'var(--green)}'};">₱${remaining.toLocaleString()}</strong></span>
             <span>📝 ${payments.length} payment${payments.length!==1?'s':''}</span>
           </div>
@@ -1953,7 +1956,7 @@ function updateSavingsSummary(grandTotal, grandTarget, count) {
   const pct = grandTarget > 0 ? Math.min(100, Math.round((grandTotal/grandTarget)*100)) : 0;
   bar.innerHTML = `
     <div style="background:var(--cream);border-radius:8px;padding:10px 14px;border-left:4px solid var(--gold);">
-      <div style="font-size:0.78rem;font-weight:700;color:var(--muted);margin-bottom:6px;">📊 GROUP SAVINGS OVERVIEW (${count} members)</div>
+      <div style="font-size:0.78rem;font-weight:700;color:var(--muted);margin-bottom:6px;">📊 GROUP SAVINGS OVERVIEW (${count} members · ${going.reduce((s,a)=>s+1+(a.companions||0),0)} total pax)</div>
       <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:0.85rem;margin-bottom:8px;">
         <span>💰 Total Collected: <strong style="color:var(--darkteal);">₱${grandTotal.toLocaleString()}</strong></span>
         <span>🎯 Group Target: <strong>₱${grandTarget.toLocaleString()}</strong></span>
