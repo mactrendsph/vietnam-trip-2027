@@ -2165,13 +2165,16 @@ async function pullFromSheets() {
     const res = await fetch(SCRIPT_URL + '?t=' + Date.now(), { cache: 'no-cache' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const remote = await res.json();
-    if (remote && typeof remote === 'object' && !remote.error) {
+    if (remote && typeof remote === 'object' && !remote.error && Object.keys(remote).length > 0) {
       mergeRemoteState(remote);
       renderAll();
       showSyncStatus('ok');
       localStorage.setItem('vn-last-sync', new Date().toISOString());
     } else {
-      showSyncStatus('ok', '🟢 Sheet empty — data initialized');
+      // Sheet is empty (first run) — push local state up to initialize it
+      showSyncStatus('ok');
+      localStorage.setItem('vn-last-sync', new Date().toISOString());
+      pushToSheets();
     }
   } catch(e) {
     console.warn('Pull failed:', e.message);
